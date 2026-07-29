@@ -51,6 +51,11 @@ Regras importantes:
 - Se um NPC aparece em várias cenas, ele só precisa da ficha completa na primeira vez
   que é mencionado — nas cenas seguintes, um lembrete curto ("já apresentado na Cena X")
   é suficiente.
+- Nunca mostre seu raciocínio interno no texto final (como "Reaproveita X? Não, é Y").
+  Vá direto ao ponto: se é mapa novo, apresente-o normalmente; se é reaproveitado,
+  use só a frase padrão de reaproveitamento definida acima.
+- Na seção "Resumão de Mesa", use os NOMES reais dos twists (os mesmos da seção
+  "Plot Twists" completa), nunca rótulos genéricos como "Twist 1"/"Twist 2".
 
 Salve o resultado em output/07-compilado.md — Markdown puro, pronto para leitura ou
 colagem direta, sem comentários seus antes ou depois.
