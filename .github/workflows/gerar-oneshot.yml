@@ -89,6 +89,33 @@ jobs:
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
             Gere o JSON pedido e salve em output/05-sonoplastia.json.
 
+      - name: 6. Documentos
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/06-documentos.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json, output/02-direcao-arte.json e
+            output/04-cartografo.json como entrada.
+            Gere o JSON pedido e salve em output/06-documentos.json.
+
+      - name: 7. Compilador
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/07-compilador.md
+            e siga-as rigorosamente.
+            Leia todos os arquivos output/01 até output/06 (se existirem) como entrada.
+            Gere o documento pedido e salve em output/07-compilado.md.
+
       - name: Disponibiliza os JSONs gerados para download
         uses: actions/upload-artifact@v4
         with:
