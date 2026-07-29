@@ -28,6 +28,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
             e siga-as rigorosamente.
@@ -40,6 +41,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/02-direcao-arte.md
             e siga-as rigorosamente.
@@ -52,6 +54,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
             e siga-as rigorosamente.
@@ -64,6 +67,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
             e siga-as rigorosamente.
@@ -76,6 +80,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/05-sonoplastia.md
             e siga-as rigorosamente.
