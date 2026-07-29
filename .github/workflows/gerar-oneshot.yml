@@ -30,6 +30,7 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            Leia também .github/agents/referencia-swade.md antes de gerar qualquer coisa.
             Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
             e siga-as rigorosamente.
             O pedido do usuário está em output/00-brief.txt.
@@ -56,6 +57,7 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            Leia também .github/agents/referencia-swade.md antes de gerar qualquer coisa.
             Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
