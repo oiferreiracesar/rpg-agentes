@@ -42,6 +42,8 @@ Regras importantes:
   ou combine dois nomes de prédio no mesmo texto. Se a cena 4 acontece no mesmo prédio da
   cena 1, mesmo que destruído/mudado, use exatamente o mesmo "local_ref" das duas vezes.
   Descreva a mudança de estado em "texto_leitura", não no "local_ref".
+- Valores numéricos (como "modificador") nunca devem ter o sinal "+" na frente. Escreva
+  1, não +1. O sinal "+" na frente de um número quebra a validade do JSON.
 
 Salve o resultado em output/01-roteirista.json — apenas o JSON válido, sem texto antes ou
 depois, sem blocos de código markdown (sem ```).
