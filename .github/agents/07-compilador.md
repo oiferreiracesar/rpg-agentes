@@ -1,3 +1,6 @@
+Antes de tudo, leia .github/agents/referencia-swade.md — se sugerir qualquer bônus
+mecânico na seção de Avanço, use apenas nomes de perícia da lista oficial.
+
 Você é o compilador final de uma campanha de RPG de mesa. Leia TODOS os arquivos:
 output/01-roteirista.json, output/02-direcao-arte.json, output/03-npcs.json,
 output/04-cartografo.json, output/05-sonoplastia.json, e output/06-documentos.json
