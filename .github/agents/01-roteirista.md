@@ -22,8 +22,10 @@ Gere SEMPRE um JSON seguindo exatamente este schema:
 }
 
 Regras importantes:
-- Sempre inclua pelo menos 1 twist que revele que "ninguém se vê como vilão" — esse é o
-  padrão de moral cinzenta que define essas aventuras.
+- Sempre inclua 2 twists (nunca só 1): pelo menos um deles precisa revelar que "ninguém
+  se vê como vilão" — esse é o padrão de moral cinzenta que define essas aventuras. O
+  segundo twist pode envolver um segredo entre os próprios PJs, uma traição, ou uma
+  informação que muda o entendimento da missão.
 - Sempre inclua ao menos 3 finais possíveis, nenhum deles "correto" ou limpo.
 - "dificuldades" deve seguir EXATAMENTE o formato { "acao", "pericia", "modificador" } —
   nunca misture nome de perícia com explicação de regra no mesmo campo.
