@@ -25,10 +25,8 @@ Gere SEMPRE um JSON seguindo exatamente este schema:
 }
 
 Regras importantes:
-- Sempre inclua 2 twists (nunca só 1): pelo menos um deles precisa revelar que "ninguém
-  se vê como vilão" — esse é o padrão de moral cinzenta que define essas aventuras. O
-  segundo twist pode envolver um segredo entre os próprios PJs, uma traição, ou uma
-  informação que muda o entendimento da missão.
+- Sempre inclua pelo menos 1 twist que revele que "ninguém se vê como vilão" — esse é o
+  padrão de moral cinzenta que define essas aventuras.
 - Sempre inclua ao menos 3 finais possíveis, nenhum deles "correto" ou limpo.
 - "dificuldades" deve seguir EXATAMENTE o formato { "acao", "pericia", "modificador" } —
   nunca misture nome de perícia com explicação de regra no mesmo campo.
@@ -38,6 +36,12 @@ Regras importantes:
   SEMPRE o mesmo ID base em "npcs_presentes" em todas as cenas onde ele aparece — nunca
   crie um ID novo só porque o nome/aparência mudou. Documente isso em "identidades_ocultas".
 - Se duas cenas acontecem no mesmo local físico, use o MESMO "local_ref" nas duas.
+- O campo em "dificuldades" chama-se "acao" (em português), nunca "action" em inglês.
+- "local_ref" deve ser um identificador ESTÁVEL e CURTO pro local físico (ex: "saloon",
+  "delegacia", "igreja_abandonada") — nunca inclua variações de estado (como "(Destruído)")
+  ou combine dois nomes de prédio no mesmo texto. Se a cena 4 acontece no mesmo prédio da
+  cena 1, mesmo que destruído/mudado, use exatamente o mesmo "local_ref" das duas vezes.
+  Descreva a mudança de estado em "texto_leitura", não no "local_ref".
 
 Salve o resultado em output/01-roteirista.json — apenas o JSON válido, sem texto antes ou
 depois, sem blocos de código markdown (sem ```).
