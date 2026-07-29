@@ -1,0 +1,80 @@
+name: Gerar Oneshot de RPG
+
+on:
+  workflow_dispatch:
+    inputs:
+      brief:
+        description: 'Descreva a aventura que você quer (gênero, tom, gancho, duração)'
+        required: true
+        type: string
+
+jobs:
+  gerar-aventura:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Prepara pasta de saída e salva o pedido do usuário
+        run: |
+          mkdir -p output
+          echo "${{ inputs.brief }}" > output/00-brief.txt
+
+      - name: 1. Roteirista
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
+            e siga-as rigorosamente.
+            O pedido do usuário está em output/00-brief.txt.
+            Gere o JSON pedido e salve em output/01-roteirista.json.
+
+      - name: 2. Direção de Arte
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/02-direcao-arte.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json como entrada.
+            Gere o JSON pedido e salve em output/02-direcao-arte.json.
+
+      - name: 3. NPCs
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
+            Gere o JSON pedido e salve em output/03-npcs.json.
+
+      - name: 4. Cartógrafo
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
+            Gere o JSON pedido e salve em output/04-cartografo.json.
+
+      - name: 5. Sonoplastia
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/05-sonoplastia.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
+            Gere o JSON pedido e salve em output/05-sonoplastia.json.
+
+      - name: Disponibiliza os JSONs gerados para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneshot-gerada
+          path: output/
+          retention-days: 30
