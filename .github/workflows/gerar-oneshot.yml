@@ -123,6 +123,7 @@ jobs:
         env:
           GEMINI_CLI_TRUST_WORKSPACE: true
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
@@ -143,8 +144,9 @@ jobs:
             Leia todos os arquivos output/01 até output/06 (se existirem) como entrada.
             Gere o documento pedido e salve em output/07-compilado.md.
             Depois de salvar, use as ferramentas do Notion disponíveis para você (MCP)
-            para publicar esse mesmo conteúdo no Notion, seguindo as instruções de
-            publicação descritas no final do arquivo 07-compilador.md.
+            para publicar esse mesmo conteúdo no Notion. O ID da página-mãe está
+            disponível na variável de ambiente NOTION_PARENT_PAGE_ID. Siga as
+            instruções de publicação descritas no final do arquivo 07-compilador.md.
 
       - name: Disponibiliza os JSONs gerados para download
         uses: actions/upload-artifact@v4
