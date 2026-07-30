@@ -34,10 +34,24 @@ visualmente as áreas de "planta_funcional". Regras obrigatórias do SVG:
   além da linha central ligando os dois pontos — isso sugere um vão de porta,
   não uma seta genérica.
 - Use as cores de "paleta_cores" (bíblia visual) para preencher e bordar.
-- Se houver mais de uma camada, separe visualmente em faixas empilhadas, cada
-  uma com um rótulo de texto indicando o nome da camada, com espaço claro entre
-  as faixas.
+- Se houver mais de uma camada, separe visualmente em faixas empilhadas (uma
+  acima da outra no eixo Y), com um espaço vazio de pelo menos 40px entre elas.
+  Cada faixa PRECISA de um <text> em negrito no topo dela, identificando o nome
+  da camada, antes de desenhar as áreas daquela faixa. Exemplo com 2 camadas:
+
+  <text x="40" y="30" fill="#c49a45" font-size="14" font-weight="bold">Camada: Superfície</text>
+  [... áreas da superfície aqui, posicionadas entre y="50" e y="250" ...]
+  <text x="40" y="290" fill="#c49a45" font-size="14" font-weight="bold">Camada: Subsolo</text>
+  [... áreas do subsolo aqui, posicionadas entre y="310" e y="500", ajustando o
+  viewBox para caber tudo ...]
 - Inclua <title> e <desc> dentro do SVG para acessibilidade.
+
+IMPORTANTE: o exemplo abaixo serve só para mostrar a TÉCNICA (bordas duplas, hub
+central maior, portas nas conexões, tamanhos variados) — nunca reutilize as
+coordenadas exatas dele. Cada planta é diferente: o número de áreas, o tamanho de
+cada uma e como elas se conectam devem vir SEMPRE da "planta_funcional" real
+daquele mapa específico, recalculando posições e tamanhos do zero a cada vez. Se
+sua planta ficar com exatamente as mesmas coordenadas do exemplo, você errou.
 
 Exemplo de referência (4 áreas, 1 hub central, layout em 2D real):
 
@@ -91,10 +105,22 @@ Exemplo de referência (2 áreas conectadas, 1 camada):
 <line x1="280" y1="110" x2="400" y2="110" stroke="#d4a373" stroke-width="1.5"/>
 </svg>
 
-Salve este código SVG de duas formas:
-1. Como o novo campo "planta_svg" dentro do JSON de cada mapa.
-2. Como um arquivo separado de verdade, em output/plantas/[local_ref].svg
-   (crie a pasta output/plantas/ se ela não existir).
+Salve este código SVG de duas formas — ATENÇÃO: são dois formatos DIFERENTES de
+aspas para o mesmo conteúdo:
+
+1. Como o campo "planta_svg" dentro do JSON: aqui SIM as aspas internas do SVG
+   precisam de barra invertida (\"), porque é uma string dentro de um JSON.
+   Exemplo: "planta_svg": "<rect fill=\"#123456\"/>"
+
+2. Como um arquivo separado de verdade, em output/plantas/[local_ref].svg (crie a
+   pasta se não existir): aqui as aspas são NORMAIS, SEM barra invertida nenhuma,
+   porque é um arquivo .svg puro, não uma string dentro de JSON.
+   Exemplo: <rect fill="#123456"/>
+
+NUNCA escreva uma barra invertida dentro do arquivo .svg — se você copiar o valor
+já escapado do JSON direto para o arquivo .svg sem remover as barras, o arquivo
+quebra e não abre no navegador. Gere o conteúdo puro (sem barras) primeiro, depois
+crie as duas versões a partir dele: uma escapada para o JSON, uma pura para o arquivo.
 
 ATENÇÃO AO SALVAR NO JSON (Passo 1): o código SVG usa aspas duplas para todos os
 atributos (x="60", fill="#1b3b2b", etc). Como o JSON também usa aspas duplas para
