@@ -69,7 +69,7 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          gemini_model: gemini-3.1-pro
+          gemini_model: gemini-3.1-pro-preview
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
             e siga-as rigorosamente.
