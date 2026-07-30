@@ -67,13 +67,16 @@ disponíveis para você (via MCP) para criar uma página nova, assim:
 1. Crie uma página nova como FILHA da página cujo ID está na variável de ambiente
    NOTION_PARENT_PAGE_ID, com o título igual ao valor de "metadados.titulo" do
    output/01-roteirista.json.
-2. Como PRIMEIRO bloco da página, insira um bloco do tipo "table_of_contents"
-   (sumário) — o próprio Notion preenche ele sozinho com base nos títulos que
-   existirem na página.
-3. Logo abaixo do sumário, insira TODO o restante do conteúdo do
-   output/07-compilado.md, convertendo a formatação markdown pros blocos
-   equivalentes do Notion (títulos viram headings, tabelas viram tabelas,
-   negrito continua negrito).
-4. Se o conteúdo passar de 100 blocos (limite da API do Notion por chamada),
+2. NÃO tente criar um bloco de sumário/table_of_contents, e NUNCA escreva a
+   palavra "[[toc]]" ou qualquer texto tentando simular um sumário — isso não
+   funciona e fica como texto quebrado na página. O usuário adiciona o sumário
+   manualmente depois, é rápido.
+3. O cabeçalho da aventura (título, sistema, gênero, classificação, duração,
+   jogadores) deve aparecer UMA ÚNICA VEZ no início do conteúdo — nunca repita
+   o título como heading em mais de um lugar da página.
+4. Insira TODO o conteúdo do output/07-compilado.md, convertendo a formatação
+   markdown pros blocos equivalentes do Notion (títulos viram headings, tabelas
+   viram tabelas, negrito continua negrito).
+5. Se o conteúdo passar de 100 blocos (limite da API do Notion por chamada),
    insira em lotes sucessivos até completar tudo — nunca corte no meio.
-5. Ao final, informe o link da página criada.
+6. Ao final, informe o link da página criada.
