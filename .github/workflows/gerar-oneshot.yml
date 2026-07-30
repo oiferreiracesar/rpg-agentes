@@ -102,7 +102,22 @@ jobs:
             Leia output/01-roteirista.json, output/02-direcao-arte.json e
             output/04-cartografo.json como entrada.
             Gere o JSON pedido e salve em output/06-documentos.json.
-
+            
+      - name: Configura acesso ao Notion via MCP
+        run: |
+          mkdir -p ~/.gemini
+          cat > ~/.gemini/settings.json << 'EOF'
+          {
+            "mcpServers": {
+              "notion": {
+                "command": "npx",
+                "args": ["-y", "@notionhq/notion-mcp-server"],
+                "env": { "NOTION_TOKEN": "${{ secrets.NOTION_TOKEN }}" }
+              }
+            }
+          }
+          EOF
+          
       - name: 7. Compilador
         uses: google-github-actions/run-gemini-cli@v0
         env:
@@ -116,6 +131,9 @@ jobs:
             e siga-as rigorosamente.
             Leia todos os arquivos output/01 até output/06 (se existirem) como entrada.
             Gere o documento pedido e salve em output/07-compilado.md.
+            Depois de salvar, use as ferramentas do Notion disponíveis para você (MCP)
+            para publicar esse mesmo conteúdo no Notion, seguindo as instruções de
+            publicação descritas no final do arquivo 07-compilador.md.
 
       - name: Disponibiliza os JSONs gerados para download
         uses: actions/upload-artifact@v4
