@@ -122,9 +122,20 @@ jobs:
         uses: google-github-actions/run-gemini-cli@v0
         env:
           GEMINI_CLI_TRUST_WORKSPACE: true
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
+          settings: |-
+            {
+              "mcpServers": {
+                "notion": {
+                  "command": "npx",
+                  "args": ["-y", "@notionhq/notion-mcp-server"],
+                  "env": { "NOTION_TOKEN": "${NOTION_TOKEN}" }
+                }
+              }
+            }
           prompt: |
             Leia também .github/agents/referencia-swade.md antes de gerar qualquer coisa.
             Leia suas instruções de sistema no arquivo .github/agents/07-compilador.md
