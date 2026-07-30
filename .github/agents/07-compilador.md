@@ -26,10 +26,13 @@ seção:
    b. NPCs desta cena — nome, papel, descrição, tipo_token e prompt_imagem de cada um
       (busque em "npcs" pelos IDs que aparecem em "npcs_presentes" desta cena)
    c. Mapa — busque em "mapas" o mapa cujo "cenas_onde_aparece" inclui o número desta
-      cena. Descreva a planta funcional resumida + os dois prompts (estático e animado,
-      se houver) SOMENTE na primeira cena em que esse mapa aparece. Nas cenas seguintes
-      que reaproveitam o mesmo mapa, escreva apenas "Reaproveita o mapa [nome], já
-      descrito na Cena [número]" — nunca repita a descrição completa.
+      cena. Descreva a planta funcional resumida + o código "planta_svg" (dentro de um
+      bloco de código do Notion, linguagem "html", com a nota "Planta em SVG — copie
+      este código e abra em um navegador ou editor de SVG para visualizar renderizado
+      (o Notion não exibe SVG colado como imagem)." acima dele) + os dois prompts
+      (estático e animado, se houver) SOMENTE na primeira cena em que esse mapa aparece.
+      Nas cenas seguintes que reaproveitam o mesmo mapa, escreva apenas "Reaproveita o
+      mapa [nome], já descrito na Cena [número]" — nunca repita a descrição completa.
    d. Documentos — se houver algum documento com "cena_onde_aparece" igual a esta cena,
       inclua nome + conteúdo completo (se pdf) ou prompt (se mockup_imagem).
    e. Trilha sonora e efeitos sonoros — busque em "sonoplastia" a entrada desta cena.
