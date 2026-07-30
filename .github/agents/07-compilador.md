@@ -74,9 +74,10 @@ disponíveis para você (via MCP) para criar uma página nova, assim:
    palavra "[[toc]]" ou qualquer texto tentando simular um sumário — isso não
    funciona e fica como texto quebrado na página. O usuário adiciona o sumário
    manualmente depois, é rápido.
-3. O cabeçalho da aventura (título, sistema, gênero, classificação, duração,
-   jogadores) deve aparecer UMA ÚNICA VEZ no início do conteúdo — nunca repita
-   o título como heading em mais de um lugar da página.
+3. O NOTION JÁ MOSTRA O TÍTULO DA PÁGINA SOZINHO, automaticamente, no topo — você
+   não precisa (e não deve) escrever o título da aventura como heading dentro do
+   conteúdo. Comece o conteúdo DIRETO pelos metadados (Sistema, Gênero,
+   Classificação, Duração, Jogadores), sem nenhum heading de título antes deles.
 4. Insira TODO o conteúdo do output/07-compilado.md, convertendo a formatação
    markdown pros blocos equivalentes do Notion (títulos viram headings, tabelas
    viram tabelas, negrito continua negrito).
