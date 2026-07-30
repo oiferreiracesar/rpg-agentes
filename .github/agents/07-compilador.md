@@ -64,8 +64,9 @@ PUBLICAÇÃO NO NOTION (depois de salvar o markdown):
 Depois de gerar e salvar output/07-compilado.md, use as ferramentas do Notion
 disponíveis para você (via MCP) para criar uma página nova, assim:
 
-1. Crie uma página nova no NÍVEL PRINCIPAL do workspace (sem página-mãe), com o
-   título igual ao valor de "metadados.titulo" do output/01-roteirista.json.
+1. Crie uma página nova como FILHA da página cujo ID está na variável de ambiente
+   NOTION_PARENT_PAGE_ID, com o título igual ao valor de "metadados.titulo" do
+   output/01-roteirista.json.
 2. Como PRIMEIRO bloco da página, insira um bloco do tipo "table_of_contents"
    (sumário) — o próprio Notion preenche ele sozinho com base nos títulos que
    existirem na página.
