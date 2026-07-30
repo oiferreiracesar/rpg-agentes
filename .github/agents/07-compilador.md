@@ -59,3 +59,20 @@ Regras importantes:
 
 Salve o resultado em output/07-compilado.md — Markdown puro, pronto para leitura ou
 colagem direta, sem comentários seus antes ou depois.
+
+PUBLICAÇÃO NO NOTION (depois de salvar o markdown):
+Depois de gerar e salvar output/07-compilado.md, use as ferramentas do Notion
+disponíveis para você (via MCP) para criar uma página nova, assim:
+
+1. Crie uma página nova no NÍVEL PRINCIPAL do workspace (sem página-mãe), com o
+   título igual ao valor de "metadados.titulo" do output/01-roteirista.json.
+2. Como PRIMEIRO bloco da página, insira um bloco do tipo "table_of_contents"
+   (sumário) — o próprio Notion preenche ele sozinho com base nos títulos que
+   existirem na página.
+3. Logo abaixo do sumário, insira TODO o restante do conteúdo do
+   output/07-compilado.md, convertendo a formatação markdown pros blocos
+   equivalentes do Notion (títulos viram headings, tabelas viram tabelas,
+   negrito continua negrito).
+4. Se o conteúdo passar de 100 blocos (limite da API do Notion por chamada),
+   insira em lotes sucessivos até completar tudo — nunca corte no meio.
+5. Ao final, informe o link da página criada.
