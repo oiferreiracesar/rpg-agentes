@@ -43,6 +43,22 @@ Salve este código SVG de duas formas:
 2. Como um arquivo separado de verdade, em output/plantas/[local_ref].svg
    (crie a pasta output/plantas/ se ela não existir).
 
+ATENÇÃO AO SALVAR NO JSON (Passo 1): o código SVG usa aspas duplas para todos os
+atributos (x="60", fill="#1b3b2b", etc). Como o JSON também usa aspas duplas para
+delimitar strings, TODA aspas dupla que aparecer DENTRO do código SVG precisa virar
+aspas escapada (\") quando for salva como valor do campo "planta_svg" — senão o JSON
+inteiro quebra e fica impossível de ler.
+
+Exemplo de como NÃO fazer (aspas sem escapar, quebra o JSON):
+"planta_svg": "<rect x="60" y="60" fill="#1b3b2b"/>"
+
+Exemplo de como fazer CORRETAMENTE (aspas escapadas):
+"planta_svg": "<rect x=\"60\" y=\"60\" fill=\"#1b3b2b\"/>"
+
+Antes de finalizar, releia o valor completo de "planta_svg" em cada mapa e confirme
+que toda aspas dupla interna está escapada com \" — nenhuma exceção, nem em atributos
+pequenos como rx="8" ou text-anchor="middle".
+
 Passo 3 — prompt artístico estático: sempre incorpore as "palavras_chave_prompt" da
 bíblia visual, usando as frases exatas (não parafraseie). Sempre inclua: vista de cima
 (top-down), sem personagens, sem texto, estilo grid-friendly battle map.
