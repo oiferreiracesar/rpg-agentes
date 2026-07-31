@@ -133,6 +133,9 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
         run: python3 .github/scripts/publicar_notion.py
+        
+      - name: Validar JSONs (sem IA)
+        run: python3 .github/scripts/validar_json.py
 
       - name: Disponibiliza os JSONs gerados para download
         uses: actions/upload-artifact@v4
