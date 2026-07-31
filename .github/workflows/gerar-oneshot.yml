@@ -65,10 +65,12 @@ jobs:
             Gere o JSON pedido e salve em output/03-npcs.json.
 
       - name: 4. Cartógrafo
-        uses: anthropics/claude-code-action@v1
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: "--model claude-sonnet-5"
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
           prompt: |
             Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
             e siga-as rigorosamente.
