@@ -75,6 +75,9 @@ jobs:
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
             Gere o JSON pedido e salve em output/04-cartografo.json.
 
+      - name: 4b. Gerar plantas (algoritmo, sem IA)
+        run: python3 .github/scripts/gerar_plantas.py
+
       - name: 5. Sonoplastia
         uses: google-github-actions/run-gemini-cli@v0
         env:
