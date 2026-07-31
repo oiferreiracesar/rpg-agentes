@@ -64,6 +64,9 @@ jobs:
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
             Gere o JSON pedido e salve em output/03-npcs.json.
 
+      - name: 3b. Corrigir Resistência (fórmula, sem IA)
+        run: python3 .github/scripts/corrigir_resistencia.py
+
       - name: 4. Cartógrafo
         uses: google-github-actions/run-gemini-cli@v0
         env:
