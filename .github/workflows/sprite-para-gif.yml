@@ -1,0 +1,48 @@
+name: Sprite Sheet para GIF
+
+on:
+  workflow_dispatch:
+    inputs:
+      arquivo:
+        description: 'Nome do arquivo PNG dentro de sprites/entrada/ (ex: personagem.png)'
+        required: true
+        type: string
+      cols:
+        description: 'Número de colunas na grade do sprite sheet'
+        required: true
+        type: string
+      rows:
+        description: 'Número de linhas na grade do sprite sheet'
+        required: true
+        type: string
+      duracao:
+        description: 'Duração de cada quadro em milissegundos'
+        required: false
+        type: string
+        default: '120'
+
+jobs:
+  gerar-gif:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Pillow
+        run: pip install Pillow --break-system-packages
+
+      - name: Gerar GIFs a partir do sprite sheet
+        run: |
+          python3 .github/scripts/sprite_para_gif.py \
+            "sprites/entrada/${{ inputs.arquivo }}" \
+            --cols ${{ inputs.cols }} \
+            --rows ${{ inputs.rows }} \
+            --duracao ${{ inputs.duracao }} \
+            --saida sprites/saida
+
+      - name: Disponibiliza os GIFs para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprites-gif
+          path: sprites/saida/
+          retention-days: 30
