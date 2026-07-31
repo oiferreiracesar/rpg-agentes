@@ -29,8 +29,9 @@ como formatar) passam por modelo de linguagem.
 ### 1. Chave de API do Gemini
 Vá em https://aistudio.google.com/apikey, gere uma chave.
 
-### 2. Chave de API da Anthropic (usada pelo Cartógrafo... "papel histórico", ver nota)
+### 2. Chave de API da Anthropic (papel histórico, ver nota)
 Vá em https://console.anthropic.com → API Keys → Create Key.
+
 > Nota: o Cartógrafo hoje roda no Gemini de novo (voltou depois de simplificarmos
 > o que ele precisa fazer). A chave da Anthropic fica configurada caso você queira
 > usar Claude em algum agente específico no futuro — não é obrigatória pro fluxo
@@ -71,24 +72,25 @@ No repositório: **Settings → Secrets and variables → Actions → New reposi
    isso não é automatizado, é rápido de fazer na mão e mais confiável
 
 ## Estrutura do repositório
+
 .github/
-├── agents/                 (Instrucoes de cada agente de IA)
-│   ├── 01-roteirista.md
-│   ├── 02-direcao-arte.md
-│   ├── 03-npcs.md
-│   ├── 04-cartografo.md
-│   ├── 05-sonoplastia.md
-│   ├── 06-documentos.md
-│   ├── 07-compilador.md    (referencia historica, logica real esta no script)
-│   └── referencia-swade.md (formulas e lista oficial de pericias)
-├── scripts/                 (Passos deterministicos, sem IA)
-│   ├── corrigir_resistencia.py
-│   ├── gerar_plantas.py
-│   ├── validar_json.py
-│   ├── compilador_gerar.py
-│   └── publicar_notion.py
-└── workflows/
-    └── gerar-oneshot.yml
+- agents/ — Instruções de cada agente de IA
+  - 01-roteirista.md
+  - 02-direcao-arte.md
+  - 03-npcs.md
+  - 04-cartografo.md
+  - 05-sonoplastia.md
+  - 06-documentos.md
+  - 07-compilador.md — referência histórica; a lógica real do Compilador hoje está no script Python
+  - referencia-swade.md — fórmulas e lista oficial de perícias do sistema
+- scripts/ — Passos determinísticos, sem IA
+  - corrigir_resistencia.py
+  - gerar_plantas.py
+  - validar_json.py
+  - compilador_gerar.py
+  - publicar_notion.py
+- workflows/
+  - gerar-oneshot.yml
 
 ## Cota gratuita — o que já aprendemos na prática
 
