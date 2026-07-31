@@ -72,24 +72,23 @@ No repositório: **Settings → Secrets and variables → Actions → New reposi
 
 ## Estrutura do repositório
 .github/
-├── agents/ # Instruções de cada agente de IA
-│ ├── 01-roteirista.md
-│ ├── 02-direcao-arte.md
-│ ├── 03-npcs.md
-│ ├── 04-cartografo.md
-│ ├── 05-sonoplastia.md
-│ ├── 06-documentos.md
-│ ├── 07-compilador.md # Mantido como referência histórica; a lógica
-│ │ real do Compilador hoje está no script Python
-│ └── referencia-swade.md # Fórmulas e lista oficial de perícias do sistema
-├── scripts/ # Passos determinísticos, sem IA
-│ ├── corrigir_resistencia.py
-│ ├── gerar_plantas.py
-│ ├── validar_json.py
-│ ├── compilador_gerar.py
-│ └── publicar_notion.py
+├── agents/                 (Instrucoes de cada agente de IA)
+│   ├── 01-roteirista.md
+│   ├── 02-direcao-arte.md
+│   ├── 03-npcs.md
+│   ├── 04-cartografo.md
+│   ├── 05-sonoplastia.md
+│   ├── 06-documentos.md
+│   ├── 07-compilador.md    (referencia historica, logica real esta no script)
+│   └── referencia-swade.md (formulas e lista oficial de pericias)
+├── scripts/                 (Passos deterministicos, sem IA)
+│   ├── corrigir_resistencia.py
+│   ├── gerar_plantas.py
+│   ├── validar_json.py
+│   ├── compilador_gerar.py
+│   └── publicar_notion.py
 └── workflows/
-└── gerar-oneshot.yml
+    └── gerar-oneshot.yml
 
 ## Cota gratuita — o que já aprendemos na prática
 
