@@ -118,8 +118,6 @@ jobs:
           EOF
           
       - name: 7a. Compilador — gerar markdown
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python3 .github/scripts/compilador_gerar.py
 
       - name: 7b. Compilador — publicar no Notion
