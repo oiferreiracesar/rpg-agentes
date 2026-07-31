@@ -17,7 +17,9 @@ Passo 2 — Se NÃO-combatente: preencha "descricao_curta" e "papel", omita atri
 pericia_chave/arma/resistencia, "tipo_token": "retrato".
 Se combatente: preencha TUDO, "tipo_token": "vista_de_cima".
 
-Passo 3 — Resistência (SWADE) = 2 + metade do dado de Vigor + armadura. Forneça o número final.
+Passo 3 — NÃO calcule nem inclua o campo "resistencia" no JSON — isso é preenchido
+automaticamente depois por um script, a partir do Vigor que você definir. Só garanta
+que "atributos.vigor" sempre esteja presente em todo NPC combatente.
 
 Passo 4 — Dano de arma corpo a corpo = sempre "Força+dX" (nunca dado fixo). Só à distância
 usa dado fixo.
