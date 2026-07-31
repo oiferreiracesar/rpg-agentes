@@ -8,6 +8,23 @@ import urllib.error
 
 NOTION_VERSION = "2022-06-28"
 
+def extract_page_id(raw):
+    """Aceita um ID puro, um ID com hífens, ou a URL completa da página do
+    Notion, e sempre devolve o ID no formato UUID com hífens que a API espera."""
+    raw = raw.strip()
+    match = re.search(
+        r"([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?"
+        r"[0-9a-fA-F]{4}-?[0-9a-fA-F]{12})(?:[?#].*)?$",
+        raw,
+    )
+    if not match:
+        print(
+            f"ERRO: não foi possível extrair um ID válido de NOTION_PARENT_PAGE_ID: {raw}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    hexid = match.group(1).replace("-", "")
+    return f"{hexid[0:8]}-{hexid[8:12]}-{hexid[12:16]}-{hexid[16:20]}-{hexid[20:32]}"
 
 def notion_request(token, method, path, body=None):
     url = f"https://api.notion.com/v1{path}"
@@ -196,10 +213,11 @@ def markdown_to_blocks(md_text):
 
 def main():
     token = os.environ.get("NOTION_TOKEN")
-    parent_id = os.environ.get("NOTION_PARENT_PAGE_ID")
-    if not token or not parent_id:
+    parent_id_raw = os.environ.get("NOTION_PARENT_PAGE_ID")
+    if not token or not parent_id_raw:
         print("ERRO: NOTION_TOKEN e/ou NOTION_PARENT_PAGE_ID não definidos.", file=sys.stderr)
         sys.exit(1)
+    parent_id = extract_page_id(parent_id_raw)
 
     md_path = os.path.join("output", "07-compilado.md")
     if not os.path.exists(md_path):
