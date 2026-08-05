@@ -83,6 +83,20 @@ jobs:
       - name: 4b. Gerar plantas (algoritmo, sem IA)
         run: python3 .github/scripts/gerar_plantas.py
 
+      - name: 4c. Animador de Cutscenes
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/08-animador.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json, output/03-npcs.json e
+            output/04-cartografo.json como entrada.
+            Gere o JSON pedido e salve em output/08-animador.json.
+
       - name: 5. Sonoplastia
         uses: google-github-actions/run-gemini-cli@v0
         env:
@@ -109,7 +123,10 @@ jobs:
             Leia output/01-roteirista.json, output/02-direcao-arte.json e
             output/04-cartografo.json como entrada.
             Gere o JSON pedido e salve em output/06-documentos.json.
-            
+
+      - name: Validar JSONs (sem IA)
+        run: python3 .github/scripts/validar_json.py
+
       - name: Configura acesso ao Notion via MCP
         run: |
           mkdir -p ~/.gemini
@@ -124,7 +141,7 @@ jobs:
             }
           }
           EOF
-          
+
       - name: 7a. Compilador — gerar markdown
         run: python3 .github/scripts/compilador_gerar.py
 
@@ -133,9 +150,6 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
         run: python3 .github/scripts/publicar_notion.py
-        
-      - name: Validar JSONs (sem IA)
-        run: python3 .github/scripts/validar_json.py
 
       - name: Disponibiliza os JSONs gerados para download
         uses: actions/upload-artifact@v4
