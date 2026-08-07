@@ -97,6 +97,19 @@ jobs:
             output/04-cartografo.json como entrada.
             Gere o JSON pedido e salve em output/08-animador.json.
 
+      - name: 4d. Tabela de Improviso
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/09-improviso.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json e output/03-npcs.json como entrada.
+            Gere o JSON pedido e salve em output/09-improviso.json.
+
       - name: 5. Sonoplastia
         uses: google-github-actions/run-gemini-cli@v0
         env:
