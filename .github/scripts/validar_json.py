@@ -72,6 +72,10 @@ def validar_roteirista(v, data):
     if len(data.get("finais", [])) < 3:
         v.aviso("01-roteirista.json: menos de 3 finais definidos")
 
+    for f in data.get("finais", []):
+        if not f.get("texto_leitura"):
+            v.aviso(f"01-roteirista.json: final '{f.get('nome','?')}' sem 'texto_leitura' (o fechamento narrado não vai aparecer no compilado)")
+
     numeros_cena = set()
     for c in data.get("cenas", []):
         num = c.get("numero")
@@ -86,6 +90,7 @@ def validar_roteirista(v, data):
             mod = d.get("modificador")
             if isinstance(mod, str):
                 v.erro(f"{origem}: 'modificador' veio como texto ('{mod}') em vez de número")
+            # nota: modificador negativo é válido de propósito (penalidade) — não é erro
 
         transicao = c.get("transicao", {})
         gatilhos = transicao.get("gatilhos")
@@ -126,19 +131,37 @@ def validar_npcs(v, data):
             dano = arma.get("dano", "")
             nome_arma = (arma.get("nome") or "").lower()
             eh_a_distancia = any(h in nome_arma for h in RANGED_WEAPON_HINTS)
-            if eh_a_distancia and "força+" in dano.lower().replace("forca+", "força+"):
+            if not dano or dano.strip() in ("", "-"):
+                v.erro(f"{origem}: arma '{arma.get('nome','?')}' sem dano preenchido — nunca pode ficar vazio ou '-'")
+            elif eh_a_distancia and "força+" in dano.lower().replace("forca+", "força+"):
                 v.erro(
                     f"{origem}: arma '{arma.get('nome')}' parece ser à distância mas o dano "
                     f"usa 'Força+dX' ({dano}) — armas à distância devem ter dado fixo"
                 )
-            if not eh_a_distancia and dano and "+" not in dano and "força" not in dano.lower():
+            elif not eh_a_distancia and dano and "+" not in dano and "força" not in dano.lower():
                 v.aviso(
                     f"{origem}: arma '{arma.get('nome')}' parece corpo a corpo mas o dano "
                     f"('{dano}') não segue o padrão Força+dX — confira manualmente"
                 )
+
+            if "carta_selvagem" not in npc:
+                v.aviso(f"{origem}: campo 'carta_selvagem' ausente — combatente deveria sempre declarar true ou false")
+
+            armadura = npc.get("armadura_bonus", 0) or 0
+            if armadura and "armadura" not in (npc.get("descricao_curta") or "").lower():
+                v.aviso(f"{origem}: tem 'armadura_bonus' ({armadura}) mas a descrição não menciona armadura — confira se não ficou inconsistente")
+
+            aparar = npc.get("aparar")
+            resistencia = npc.get("resistencia")
+            if aparar is None or resistencia is None:
+                v.erro(f"{origem}: falta 'aparar' ou 'resistencia' — o script de fórmulas (corrigir_resistencia.py) não parece ter rodado nesse NPC")
+            elif aparar == 0 or resistencia == 0:
+                v.aviso(f"{origem}: 'aparar' ou 'resistencia' está em 0 — valor mínimo esperado é 2 (destreinado); confira se o script de fórmulas rodou depois deste NPC ter sido gerado")
         else:
             if npc.get("tipo_token") != "retrato":
                 v.aviso(f"{origem}: não-combatente com tipo_token diferente de 'retrato'")
+            if not (npc.get("papel") or npc.get("diretriz_interpretacao")):
+                v.aviso(f"{origem}: não-combatente sem 'papel' nem 'diretriz_interpretacao' — função narrativa não está clara pro mestre")
 
 
 def validar_sonoplastia(v, data, roteirista):
@@ -151,6 +174,30 @@ def validar_sonoplastia(v, data, roteirista):
         v.erro(f"05-sonoplastia.json: faltam entradas para as cenas {sorted(faltando)}")
 
 
+def validar_animador(v, data, roteirista):
+    if data is None or roteirista is None:
+        return
+    cenas_validas = {c["numero"] for c in roteirista.get("cenas", [])}
+    finais_validos = {f["nome"] for f in roteirista.get("finais", [])}
+    for cs in data.get("cutscenes", []):
+        cena_ref = cs.get("cena_ref")
+        if cena_ref is not None and cena_ref not in cenas_validas:
+            v.aviso(f"08-animador.json: cutscene '{cs.get('momento','?')}' referencia cena {cena_ref} que não existe")
+        final_ref = cs.get("final_ref")
+        if final_ref and final_ref not in finais_validos:
+            v.aviso(f"08-animador.json: cutscene '{cs.get('momento','?')}' referencia final '{final_ref}' que não existe nos finais do roteirista")
+
+
+def validar_improviso(v, data, npcs_data):
+    if data is None or npcs_data is None:
+        return
+    ids_validos = {n["id"] for n in npcs_data.get("npcs", [])}
+    for entry in data.get("banco_de_falas", []):
+        npc_id = entry.get("npc_id")
+        if npc_id not in ids_validos:
+            v.aviso(f"09-improviso.json: banco de falas referencia npc_id '{npc_id}' que não existe em 03-npcs.json")
+
+
 def main():
     v = Validador()
 
@@ -158,6 +205,8 @@ def main():
     npcs = carregar_json(v, "output/03-npcs.json")
     cartografo = carregar_json(v, "output/04-cartografo.json")
     sonoplastia = carregar_json(v, "output/05-sonoplastia.json")
+    animador = carregar_json(v, "output/08-animador.json")
+    improviso = carregar_json(v, "output/09-improviso.json")
 
     if roteirista is not None:
         validar_roteirista(v, roteirista)
@@ -165,6 +214,10 @@ def main():
         validar_npcs(v, npcs)
     if sonoplastia is not None:
         validar_sonoplastia(v, sonoplastia, roteirista)
+    if animador is not None:
+        validar_animador(v, animador, roteirista)
+    if improviso is not None:
+        validar_improviso(v, improviso, npcs)
     _ = cartografo
 
     print("=" * 60)
