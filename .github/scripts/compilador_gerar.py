@@ -56,6 +56,37 @@ def attrs_str(attrs):
     )
 
 
+def cutscenes_por_cena(animador):
+    mapa = {}
+    if not animador:
+        return mapa
+    for cs in animador.get("cutscenes", []):
+        ref = cs.get("cena_ref")
+        if ref is not None:
+            mapa.setdefault(ref, []).append(cs)
+    return mapa
+
+
+def cutscenes_por_final(animador):
+    mapa = {}
+    if not animador:
+        return mapa
+    for cs in animador.get("cutscenes", []):
+        ref = cs.get("final_ref")
+        if ref:
+            mapa.setdefault(ref, []).append(cs)
+    return mapa
+
+
+def cutscene_abertura(animador):
+    if not animador:
+        return None
+    for cs in animador.get("cutscenes", []):
+        if cs.get("tipo") == "abertura":
+            return cs
+    return None
+
+
 def main():
     roteirista_path = "output/01-roteirista.json"
     if not os.path.exists(roteirista_path):
@@ -67,6 +98,11 @@ def main():
     cartografo = read_json_opt("output/04-cartografo.json") or {"mapas": []}
     sono = read_json_opt("output/05-sonoplastia.json") or {"sonoplastia": []}
     docs = read_json_opt("output/06-documentos.json")
+    animador = read_json_opt("output/08-animador.json")
+    improviso = read_json_opt("output/09-improviso.json")
+
+    cs_por_cena = cutscenes_por_cena(animador)
+    cs_por_final = cutscenes_por_final(animador)
 
     md = []
     meta = roteirista["metadados"]
@@ -120,20 +156,68 @@ def main():
     md.append("---")
     md.append("")
 
+    # ---------- Cutscenes (08-animador.json) ----------
+    if animador and animador.get("cutscenes"):
+        md.append("## 🎬 Cutscenes")
+        md.append(
+            "Momentos que valem uma pausa cinematográfica, montados reaproveitando o "
+            "mapa e os tokens já gerados. Suba a imagem do mapa (e os tokens, quando "
+            "houver) como referência no Google Flow, e cole o prompt correspondente."
+        )
+        md.append("")
+        for i, cs in enumerate(animador["cutscenes"], 1):
+            md.append(f"### {i}. {cs.get('momento', '')}")
+            md.append("")
+            md.append(f"**Quando mostrar:** {cs.get('gatilho_narrativo', '')}")
+            md.append("")
+            mapa_ref = cs.get("mapa_ref")
+            tokens_ref = cs.get("tokens_ref") or []
+            reaproveita = []
+            if mapa_ref:
+                reaproveita.append(f"Mapa `{mapa_ref}`")
+            if tokens_ref:
+                reaproveita.append("Tokens " + ", ".join(f"`{t}`" for t in tokens_ref))
+            if reaproveita:
+                md.append(f"**Reaproveita:** {' · '.join(reaproveita)}")
+                md.append("")
+            if cs.get("cena_do_momento"):
+                md.append(f"**Cena:** {cs['cena_do_momento']}")
+                md.append("")
+            prompt = cs.get("prompt_montagem") or cs.get("prompt_animacao_flow")
+            if prompt:
+                md.append("**Prompt para o Flow:**")
+                md.append("```")
+                md.append(prompt)
+                md.append("```")
+            md.append("")
+        md.append("---")
+        md.append("")
+
     md.append("## Resumão de Mesa")
     md.append("### NPCs Combatentes")
     combat_npcs = [n for n in npcs_data["npcs"] if n.get("combatente")]
     if combat_npcs:
-        md.append("| Nome | Atributos | Perícia-Chave | Arma (Dano) | Resistência |")
-        md.append("| :--- | :--- | :--- | :--- | :---: |")
+        md.append("| Nome | Carta Selvagem | Atributos | Perícia-Chave | Arma (Dano) | Aparar | Resistência |")
+        md.append("| :--- | :---: | :--- | :--- | :--- | :---: | :---: |")
         for n in combat_npcs:
             pc = n.get("pericia_chave", {})
             arma = n.get("arma", {})
+            armadura = n.get("armadura_bonus", 0) or 0
+            resistencia_str = f"{n.get('resistencia', '-')}" + (f" ({armadura})" if armadura else "")
             md.append(
-                f"| {n['nome_exibicao']} | {attrs_str(n.get('atributos', {}))} | "
+                f"| {n['nome_exibicao']} | {'⭐ Sim' if n.get('carta_selvagem') else 'Não'} | "
+                f"{attrs_str(n.get('atributos', {}))} | "
                 f"{pc.get('nome', '-')} ({pc.get('dado', '-')}) | "
                 f"{arma.get('nome', '-')} ({arma.get('dano', '-')}) | "
-                f"{n.get('resistencia', '-')} |"
+                f"{n.get('aparar', '-')} | "
+                f"{resistencia_str} |"
+            )
+        if any(n.get("carta_selvagem") for n in combat_npcs):
+            md.append("")
+            md.append(
+                "> **Cartas Selvagens** aguentam 3 Ferimentos antes de ficar "
+                "Incapacitadas, e rolam um Dado Selvagem (d6) extra em toda rolagem "
+                "de Característica, usando o melhor resultado entre os dois dados."
             )
     else:
         md.append("Nenhum NPC combatente nesta aventura.")
@@ -142,10 +226,15 @@ def main():
     md.append("### Dificuldades das Cenas")
     for c in roteirista["cenas"]:
         difs = "; ".join(
-            f"{d['pericia']} (mod. {d['modificador']}) — {d['acao']}"
+            f"{d['pericia']} (mod. {'+' if d['modificador'] > 0 else ''}{d['modificador']}) — {d['acao']}"
             for d in c["dificuldades"]
         )
         md.append(f"- **Cena {c['numero']}:** {difs}")
+    md.append("")
+    md.append(
+        "> Modificador positivo = bônus (mais fácil). Modificador negativo = "
+        "penalidade (mais difícil). Número Alvo padrão do SWADE é 4."
+    )
     md.append("")
 
     md.append("### Twists")
@@ -159,6 +248,56 @@ def main():
     md.append("")
     md.append("---")
     md.append("")
+
+    # ---------- Tabela de Improviso (09-improviso.json) ----------
+    if improviso:
+        md.append("## 🎲 Tabela de Improviso")
+        md.append(
+            "Pra quando os jogadores fizerem algo que não está no roteiro."
+        )
+        md.append("")
+
+        if improviso.get("framework_geral"):
+            md.append("### Framework geral — como decidir na hora")
+            md.append("| O jogador quer... | Modificador a aplicar |")
+            md.append("| --- | --- |")
+            for item in improviso["framework_geral"]:
+                md.append(f"| {item.get('situacao', '')} | {item.get('modificador', '')} |")
+            md.append("")
+
+        if improviso.get("situacoes_comuns"):
+            md.append("### Situações comuns")
+            md.append("| O jogador quer... | Como resolver |")
+            md.append("| --- | --- |")
+            for item in improviso["situacoes_comuns"]:
+                md.append(f"| {item.get('situacao', '')} | {item.get('como_resolver', '')} |")
+            md.append("")
+
+        if improviso.get("gatilhos_especificos"):
+            md.append(f"### Gatilhos específicos de \"{meta.get('titulo', 'esta aventura')}\"")
+            md.append("| Se os jogadores... | Como lidar |")
+            md.append("| --- | --- |")
+            for item in improviso["gatilhos_especificos"]:
+                md.append(f"| {item.get('situacao', '')} | {item.get('como_lidar', '')} |")
+            md.append("")
+
+        if improviso.get("banco_de_falas"):
+            md.append("### 🗣️ Banco de Falas — improviso de diálogo")
+            md.append("")
+            for entry in improviso["banco_de_falas"]:
+                npc = find_npc(npcs_data, entry.get("npc_id"))
+                nome = npc["nome_exibicao"] if npc else entry.get("npc_id", "NPC")
+                fase = f" — {entry['fase']}" if entry.get("fase") else ""
+                md.append(f"**{nome}{fase}**")
+                md.append("")
+                if entry.get("frase_coringa"):
+                    md.append(f"- **Frase-coringa:** *\"{entry['frase_coringa']}\"*")
+                for r in entry.get("reacoes", []):
+                    md.append(f"- Se {r.get('gatilho', '')}: *\"{r.get('fala', '')}\"*")
+                md.append("")
+
+        md.append("---")
+        md.append("")
 
     npcs_ja_apresentados = {}
     mapas_ja_apresentados = {}
@@ -182,6 +321,9 @@ def main():
         md.append(f"- Objetivo: {c.get('objetivo', '')}")
         gatilhos = "; ".join(c["transicao"]["gatilhos"])
         md.append(f"- Gatilho de Saída: {gatilhos}")
+        cenas_cs = cs_por_cena.get(num, [])
+        for cs in cenas_cs:
+            md.append(f"- 🎬 Cutscene desta cena: **{cs.get('momento', '')}** (ver seção Cutscenes acima)")
         md.append("")
 
         md.append("**NPCs Desta Cena**")
@@ -211,7 +353,15 @@ def main():
                     md.append(f"  - Perícia-Chave: {pc.get('nome', '-')} ({pc.get('dado', '-')})")
                     arma = npc.get("arma", {})
                     md.append(f"  - Arma: {arma.get('nome', '-')} (Dano: {arma.get('dano', '-')})")
-                    md.append(f"  - Resistência: {npc.get('resistencia', '-')}")
+                    md.append(f"  - Aparar: {npc.get('aparar', '-')}")
+                    armadura = npc.get("armadura_bonus", 0) or 0
+                    resistencia_str = f"{npc.get('resistencia', '-')}" + (f" ({armadura})" if armadura else "")
+                    md.append(f"  - Resistência: {resistencia_str}")
+                    if npc.get("carta_selvagem"):
+                        md.append(
+                            "  - **⭐ Carta Selvagem** — 3 Ferimentos antes de "
+                            "Incapacitado, rola Dado Selvagem (d6) extra."
+                        )
                 md.append(f"  - Tipo de Token: {npc.get('tipo_token', '')}")
                 md.append(f"  - Prompt de Imagem: `{npc.get('prompt_imagem', '')}`")
         md.append("")
@@ -279,7 +429,8 @@ def main():
 
         md.append("**Dificuldades**")
         for d in c.get("dificuldades", []):
-            md.append(f"- {d['acao']} — Perícia: {d['pericia']} | Modificador: {d['modificador']}")
+            sinal = "+" if d["modificador"] > 0 else ""
+            md.append(f"- {d['acao']} — Perícia: {d['pericia']} | Modificador: {sinal}{d['modificador']}")
         md.append("")
 
         md.append("**Transição**")
@@ -294,8 +445,15 @@ def main():
     md.append("## Finais Possíveis")
     for i, f in enumerate(roteirista["finais"], 1):
         md.append(f"{i}. **{f['nome']}**")
-        md.append(f"   - Consequência: {f['consequencia']}")
-    md.append("")
+        md.append("")
+        md.append(f"- Consequência: {f['consequencia']}")
+        for cs in cs_por_final.get(f["nome"], []):
+            md.append(f"- 🎬 Cutscene: **{cs.get('momento', '')}** (ver seção Cutscenes acima)")
+        if f.get("texto_leitura"):
+            md.append("")
+            md.append("**Texto de Leitura (final)**")
+            md.append(f"> {f['texto_leitura']}")
+        md.append("")
     md.append("---")
     md.append("")
 
