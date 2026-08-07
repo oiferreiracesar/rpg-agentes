@@ -62,7 +62,10 @@ def cutscenes_por_cena(animador):
         return mapa
     for cs in animador.get("cutscenes", []):
         ref = cs.get("cena_ref")
-        if ref is not None:
+        # cutscenes de final (mesmo que tambem tenham cena_ref preenchido) só
+        # aparecem em "Finais Possíveis" — evita listar o mesmo final 3x dentro
+        # da cena de clímax antes da escolha ser feita
+        if ref is not None and not cs.get("final_ref"):
             mapa.setdefault(ref, []).append(cs)
     return mapa
 
