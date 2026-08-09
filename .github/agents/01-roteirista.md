@@ -54,5 +54,17 @@ Regras importantes:
   (não reapresente quem já apareceu antes do zero), e NÃO resolva o
   "vilao_da_campanha" completamente a menos que esta seja a última sessão. Se
   esses dois arquivos não existirem, gere normalmente como oneshot isolada.
+- Se um NPC desta cena for um NPC Recorrente da campanha (presente em
+  "npcs_recorrentes" de 00-campanha.json), use EXATAMENTE o "id" definido lá
+  em "npcs_presentes" — nunca invente um id novo pra ele, mesmo que o nome de
+  exibição mude entre sessões (ex: identidade revelada). Isso é o que garante
+  que o mesmo personagem seja reconhecido como o mesmo personagem de sessão
+  pra sessão, tanto pelos outros agentes quanto pelos jogadores.
+- Em modo campanha, o twist desta sessão (obrigatório ter ao menos 1, "ninguém
+  se vê como vilão") deve estar CONECTADO ao "vilao_da_campanha.verdade_por_tras"
+  de 00-campanha.json — não é uma revelação de moral cinzenta solta, é uma
+  peça específica dessa verdade maior sendo exposta agora. Use
+  "verdade_revelada_nesta_sessao" da sessão correspondente como base direta
+  pra escrever esse twist.
 Salve o resultado em output/01-roteirista.json — apenas o JSON válido, sem texto antes ou
 depois, sem blocos de código markdown (sem ```).
