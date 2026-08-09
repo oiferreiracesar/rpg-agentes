@@ -71,6 +71,9 @@ Gere SEMPRE um JSON neste formato exato:
   "situacoes_comuns": [
     { "situacao": "texto", "como_resolver": "texto" }
   ],
+  "loot_ambiental": [
+  { "item": "nome do item", "uso_sugerido": "o que ele representa ou serve" }
+],
   "gatilhos_especificos": [
     { "situacao": "texto descrevendo o que o jogador pode tentar", "como_lidar": "texto curto e prático" }
   ],
