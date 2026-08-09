@@ -30,7 +30,11 @@ pra sessão), e qual pedaço da verdade sobre o Vilão da Campanha é revelado a
 
 Passo 4 — Liste os NPCs Recorrentes da campanha inteira (o time base — pense
 na Princesa/monarca, o guia sábio, o antagonista) com uma frase de arco de
-cada um: como ele muda da primeira pra última sessão.
+cada um: como ele muda da primeira pra última sessão. Defina também um "id"
+curto e estável em snake_case pra cada um (ex: "zelda", "impa") — esse é o
+ÚNICO identificador que qualquer sessão gerada depois deve usar pra esse NPC,
+em "npcs_presentes" do Roteirista. Nunca troque o id entre sessões, mesmo que
+o nome de exibição mude (ex: identidade revelada).
 
 Gere SEMPRE um JSON neste formato exato:
 
@@ -44,7 +48,7 @@ Gere SEMPRE um JSON neste formato exato:
       "revelacao_final": "o que é revelado sobre ele na última sessão"
     },
     "npcs_recorrentes": [
-      { "nome": "string", "papel": "string", "arco": "como muda da primeira pra ultima sessão" }
+      { "id": "id_curto_em_snake_case", "nome": "string", "papel": "string", "arco": "como muda da primeira pra ultima sessão" }
     ],
     "sessoes": [
       {
@@ -52,7 +56,7 @@ Gere SEMPRE um JSON neste formato exato:
         "titulo": "string",
         "papel_no_arco": "introducao | desenvolvimento | clímax",
         "resumo": "2-3 frases",
-        "npcs_recorrentes_presentes": ["nomes"],
+        "npcs_recorrentes_presentes": ["ids exatos, os mesmos definidos em npcs_recorrentes — nunca o nome de exibição"],
         "verdade_revelada_nesta_sessao": "string",
         "gancho_para_proxima": "string ou null se for a última"
       }
