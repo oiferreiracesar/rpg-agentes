@@ -124,8 +124,64 @@ Tom: heroico e esperançoso mesmo nos momentos sombrios. Coragem individual só
 importa dentro de um propósito maior — nunca sozinha.
 
 ## Referência estrutural obrigatória
-Sempre que gerar uma aventura nova neste universo, use a estrutura de
-"O Despertar da Luz Ancestral" como molde de ritmo e proporção: uma cena de
-convocação, uma cena de vila/apoio, uma cena de travessia com perigo natural,
-uma dungeon com 3-5 partes internas (não uma sala só), e um clímax com
-identidade oculta revelada e múltiplos finais moralmente ambíguos.
+
+Toda aventura gerada neste universo deve seguir esta estrutura de 6 blocos,
+extraída de "O Despertar da Luz Ancestral" (a aventora de referência do
+projeto). Adapte nomes e conteúdo, mas mantenha a função de cada bloco e a
+proporção aproximada de tempo:
+
+**Bloco 0 — Introdução (5-10% da duração total)**
+Texto de leitura em prosa, não uma cena jogável — contextualiza a cosmologia
+e a situação atual do reino antes do primeiro NPC aparecer. Termina no exato
+momento em que os heróis encontram a autoridade que vai lhes dar a missão.
+
+**Bloco 1 — Convocação (10-15% da duração total)**
+Uma única cena, local fechado e formal (salão, câmara, posto de comando). Um
+NPC de autoridade (nunca o próprio "herói lendário" do jogo de referência)
+explica a missão e entrega um gancho físico (carta, mapa, item). Termina com
+os heróis aceitando e recebendo a indicação de próximo destino.
+
+**Bloco 2 — Vila de Apoio (10-15% da duração total)**
+Uma cena separada da Convocação, num local social e relativamente seguro
+(vila, posto avançado, mercado). Um NPC sábio/guia oferece orientação — se
+tratado bem, revela um atalho ou vantagem pra próxima etapa. Espaço livre pra
+exploração e interação lateral, sem risco de combate obrigatório.
+
+**Bloco 3 — Travessia (15-20% da duração total)**
+Uma cena de perigo natural/ambiental (floresta, deserto, montanha, mar) entre
+a Vila de Apoio e a Dungeon. Inclui uma emboscada ou obstáculo com capangas
+comuns (nunca Cartas Selvagens aqui), e ao menos uma dificuldade que pode ser
+evitada se o grupo usou bem a ajuda recebida no Bloco 2.
+
+**Bloco 4 — Dungeon (35-45% da duração total, o maior bloco)**
+Nunca uma sala só. Sempre 4-5 partes internas em sequência:
+1. Vestíbulo — transição, sem desafio mecânico, planta a pista do próximo
+   puzzle
+2. Puzzle temático 1 — resolvido por lógica/perícia, ligado à cosmologia do
+   universo (trios, ordem, ciclos)
+3. Puzzle temático 2 — tipo diferente do primeiro (ex: um é lógico, outro é
+   espacial/físico), mesmo tema unificador da dungeon
+4. Mini-prova de combate — um inimigo comum (nunca Carta Selvagem), serve de
+   ensaio tático pro confronto final
+5. Câmara final — onde o antagonista central aparece, geralmente disfarçado
+   ou com identidade ainda não revelada
+
+O antagonista da Dungeon usa identidade oculta (ver referencia-swade.md,
+"identidades_ocultas") sempre que a aventura tiver um antagonista trágico —
+ele se apresenta com um nome/aparência na Dungeon, e sua identidade real só é
+revelada no Bloco 5.
+
+**Bloco 5 — Clímax e Escolha (10-15% da duração total)**
+Cena final, mesmo local da Dungeon ou um espaço adjacente. A identidade do
+antagonista é revelada. Sempre ofereça ao menos 3 finais possíveis, nenhum
+deles inequivocamente "correto" — cada um com uma consequência narrativa real
+e um Texto de Leitura próprio (2-3 parágrafos, não só uma frase de resumo).
+
+## Elementos que perpassam todos os blocos
+- Toda dificuldade de combate precisa de uma ficha de NPC correspondente,
+  mesmo que genérica (ver referencia-swade.md sobre isso)
+- Modificadores negativos = penalidade, positivos = bônus — nunca ambíguo
+- Um "chefe de cena" (Dungeon e Clímax) é sempre Carta Selvagem; capangas
+  (Travessia, mini-prova da Dungeon) nunca são
+- Pelo menos um NPC recorrente aparece em 2+ blocos, criando continuidade
+  emocional entre as cenas (na aventura de referência, é a Princesa/monarca)
