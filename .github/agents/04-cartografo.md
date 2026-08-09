@@ -15,6 +15,16 @@ conectam entre si (campo "conexoes", sempre citando o "nome" exato de outra áre
 dessa mesma planta). Se o local tiver camadas (ex: térreo + subsolo escondido),
 represente isso explicitamente no campo "camada" de cada área.
 
+Em "elementos_especiais", descreva SEMPRE o obstáculo em termos narrativos puros
+— nunca inclua um número de Dificuldade, modificador, ou qualquer valor
+mecânico. Quem decide o número exato é o Roteirista, sozinho, no campo
+"modificador" de cada dificuldade — se você também sugerir um valor aqui, os
+dois podem se contradizer (ex: você escrever "Dificuldade 4" pensando em
+penalidade, e o Roteirista escrever "modificador: 4" pensando em bônus, sem
+que nenhum dos dois perceba a troca de sinal). Escreva só o obstáculo em si:
+"Engrenagens mecânicas perigosas bloqueiam a passagem" — nunca "Ladinagem
+Dificuldade 2" ou similar.
+
 Passo 3 — Gere o prompt artístico estático, sempre incorporando as
 "palavras_chave_prompt" da bíblia visual recebida, usando as frases exatas dela
 (não parafraseie). Sempre inclua: vista de cima (top-down), sem personagens, sem
@@ -67,7 +77,7 @@ Exemplo completo de referência (mosteiro com duas camadas, fantasia medieval):
           { "nome": "Sala de registros", "camada": "Subsolo", "descricao": "Nomes e datas documentados", "conexoes": ["Células da colheita"] },
           { "nome": "Câmara funda", "camada": "Subsolo", "descricao": "Zumbido baixo — nunca mostrar o que dorme aqui", "conexoes": ["Células da colheita"] }
         ],
-        "elementos_especiais": ["Passagem escondida atrás do altar, Perceber Dificuldade 4 pra encontrar"]
+        "elementos_especiais": ["Passagem escondida atrás do altar, disfarçada entre os entalhes de pedra"]
       },
       "prompt_arte_estatica": "Top-down tabletop RPG battle map of a dark stone monastery interior split into two levels: ground floor with a small chapel with altar, dormitories, refectory, garden courtyard; and a hidden underground chamber level with damp stone cells, a records wall, and a deep chamber shrouded in shadow, dark medieval fantasy style, painterly textures, torchlight and candlelight, moody atmospheric lighting, no characters, no people, grid-friendly top-down view",
       "prompt_arte_animada": "5 second seamless looping video, top-down view of monastery underground chambers, flickering torchlight and candle flames, subtle mist rising slowly from the stone cells, faint pulsing glow from the deep chamber in the distance, no characters, static camera, dark oppressive atmosphere, seamless loop with matching first and last frame"
