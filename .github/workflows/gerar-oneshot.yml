@@ -7,6 +7,50 @@ on:
         description: 'Descreva a aventura que você quer (gênero, tom, gancho, duração)'
         required: true
         type: string
+      universo:
+        description: 'Universo/franquia da aventura'
+        required: true
+        type: choice
+        default: 'generico'
+        options:
+          - hyrule
+          - final_fantasy
+          - scifi_nintendo
+          - pokemon
+          - digimon
+          - ordem_paranormal
+          - star_wars
+          - naruto
+          - dc
+          - marvel_hq
+          - marvel_cinematico
+          - silent_hill
+          - resident_evil
+          - slasher
+          - generico
+      jogo_referencia:
+        description: 'Jogo/região/tipo específico do universo escolhido (veja a referência daquele universo pras opções — ex: "breath_of_the_wild", "final_fantasy_vii"). Deixe "sem_preferencia" se não quiser travar em um.'
+        required: true
+        type: string
+        default: 'sem_preferencia'
+      momento_temporal:
+        description: 'Quando a história se passa, em relação ao jogo/mídia escolhido (se aplicável)'
+        required: true
+        type: choice
+        default: 'sem_preferencia'
+        options:
+          - antes_dos_eventos
+          - durante_os_eventos
+          - depois_dos_eventos
+          - sem_preferencia
+      modo_campanha_pokemon:
+        description: 'Só relevante se universo = pokemon'
+        required: true
+        type: choice
+        default: 'treinador'
+        options:
+          - treinador
+          - mystery_dungeon
 
 jobs:
   gerar-aventura:
@@ -22,6 +66,31 @@ jobs:
         run: |
           mkdir -p output
           echo "${{ inputs.brief }}" > output/00-brief.txt
+          echo "${{ inputs.universo }}" > output/00-universo.txt
+          echo "${{ inputs.jogo_referencia }}" > output/00-jogo-referencia.txt
+          echo "${{ inputs.momento_temporal }}" > output/00-momento-temporal.txt
+          echo "${{ inputs.modo_campanha_pokemon }}" > output/00-modo-campanha.txt
+
+      - name: Resolve arquivo de referência de universo (mapeamento central, sem IA)
+        run: |
+          case "${{ inputs.universo }}" in
+            hyrule) echo "referencia-hyrule.md" > output/00-arquivo-referencia.txt ;;
+            final_fantasy) echo "referencia-finalfantasy.md" > output/00-arquivo-referencia.txt ;;
+            scifi_nintendo) echo "referencia-scifi-nintendo.md" > output/00-arquivo-referencia.txt ;;
+            pokemon) echo "referencia-pokemon.md" > output/00-arquivo-referencia.txt ;;
+            digimon) echo "referencia-digimon.md" > output/00-arquivo-referencia.txt ;;
+            ordem_paranormal) echo "referencia-ordemparanormal.md" > output/00-arquivo-referencia.txt ;;
+            star_wars) echo "referencia-starwars.md" > output/00-arquivo-referencia.txt ;;
+            naruto) echo "referencia-naruto.md" > output/00-arquivo-referencia.txt ;;
+            dc) echo "referencia-dc.md" > output/00-arquivo-referencia.txt ;;
+            marvel_hq) echo "referencia-marvel-hq.md" > output/00-arquivo-referencia.txt ;;
+            marvel_cinematico) echo "referencia-marvel-cinematico.md" > output/00-arquivo-referencia.txt ;;
+            silent_hill) echo "referencia-silenthill.md" > output/00-arquivo-referencia.txt ;;
+            resident_evil) echo "referencia-residentevil.md" > output/00-arquivo-referencia.txt ;;
+            slasher) echo "referencia-slasher.md" > output/00-arquivo-referencia.txt ;;
+            *) echo "" > output/00-arquivo-referencia.txt ;;
+          esac
+          echo "Universo escolhido: ${{ inputs.universo }} -> arquivo: $(cat output/00-arquivo-referencia.txt)"
 
       - name: 1. Roteirista
         uses: google-github-actions/run-gemini-cli@v0
@@ -31,7 +100,17 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
-            Leia também .github/agents/referencia-swade.md antes de gerar qualquer coisa.
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo (se houver) está em output/00-arquivo-referencia.txt
+            — se não estiver vazio, leia também .github/agents/[esse nome exato]
+            antes de gerar qualquer coisa. Se estiver vazio, universo é "genérico":
+            não leia nenhuma referência externa, construa do zero usando só o SWADE.
+            Se o arquivo lido tiver "Referência estrutural obrigatória", siga-a
+            rigorosamente. O jogo/mídia de referência está em
+            output/00-jogo-referencia.txt e o momento temporal em
+            output/00-momento-temporal.txt — use-os para ajustar tom e conteúdo.
+            Se o universo for "pokemon", o modo de campanha está em
+            output/00-modo-campanha.txt.
             Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
             e siga-as rigorosamente.
             O pedido do usuário está em output/00-brief.txt.
@@ -45,6 +124,9 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            O nome do arquivo de referência de universo está em
+            output/00-arquivo-referencia.txt — se não estiver vazio, leia também
+            .github/agents/[esse nome exato] antes de gerar qualquer coisa.
             Leia suas instruções de sistema no arquivo .github/agents/02-direcao-arte.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json como entrada.
@@ -58,7 +140,12 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
-            Leia também .github/agents/referencia-swade.md antes de gerar qualquer coisa.
+            Leia .github/agents/referencia-swade.md sempre (raças oficiais e Carta
+            Selvagem). O nome do arquivo de referência de universo está em
+            output/00-arquivo-referencia.txt — se não estiver vazio, leia também
+            .github/agents/[esse nome exato] e use a tabela de raças dele, se houver.
+            output/00-universo.txt e output/00-modo-campanha.txt informam se este é
+            um universo com arquitetura de personagem especial (pokemon, digimon).
             Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
@@ -75,6 +162,11 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            O nome do arquivo de referência de universo está em
+            output/00-arquivo-referencia.txt — se não estiver vazio, leia também
+            .github/agents/[esse nome exato] antes de gerar qualquer coisa.
+            Nunca inclua número/modificador em "elementos_especiais" — isso é
+            responsabilidade exclusiva do Roteirista.
             Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
@@ -102,6 +194,9 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            output/00-universo.txt e output/00-modo-campanha.txt informam se é
+            necessário tratamento especial de fala (Pokémon modo treinador não fala
+            língua humana; Digimon e Pokémon Mystery Dungeon falam normalmente).
             Leia suas instruções de sistema no arquivo .github/agents/09-improviso.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/03-npcs.json como entrada.
@@ -115,13 +210,24 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            O nome do arquivo de referência de universo está em
+            output/00-arquivo-referencia.txt — se não estiver vazio, leia também
+            .github/agents/[esse nome exato] antes de gerar qualquer coisa.
             Leia suas instruções de sistema no arquivo .github/agents/10-puzzles.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
             Gere o JSON pedido e salve em output/10-puzzles.json.
 
-      - name: 4f. Montar e verificar caça-palavras (algoritmo, sem IA)
-        run: python3 .github/scripts/gerar_caca_palavras.py
+      - name: 4f. Montar e verificar puzzles físicos (algoritmo, sem IA)
+        run: |
+          python3 .github/scripts/gerar_caca_palavras.py
+          python3 .github/scripts/gerar_cifra.py
+          python3 .github/scripts/gerar_anagrama.py
+          python3 .github/scripts/gerar_sequencia_logica.py
+          python3 .github/scripts/gerar_palavras_cruzadas.py
+          python3 .github/scripts/gerar_cadeado_numerico.py
+          python3 .github/scripts/gerar_sudoku_tematico.py
+          python3 .github/scripts/gerar_roleta.py
 
       - name: 5. Sonoplastia
         uses: google-github-actions/run-gemini-cli@v0
@@ -131,6 +237,9 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
+            O nome do arquivo de referência de universo está em
+            output/00-arquivo-referencia.txt — se não estiver vazio, leia também
+            .github/agents/[esse nome exato] pra manter o tom sonoro coerente.
             Leia suas instruções de sistema no arquivo .github/agents/05-sonoplastia.md
             e siga-as rigorosamente.
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
@@ -177,7 +286,7 @@ jobs:
           NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
         run: python3 .github/scripts/publicar_notion.py
 
-      - name: Disponibiliza os JSONs gerados para download
+      - name: Disponibiliza os JSONs e PDFs gerados para download
         uses: actions/upload-artifact@v4
         with:
           name: oneshot-gerada
