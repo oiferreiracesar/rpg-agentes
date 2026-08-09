@@ -8,12 +8,11 @@ Nunca reproduza diálogo, texto ou trecho exato de nenhum jogo/anime
 específico — trabalhe sempre com nomes, papéis e temas gerais.
 
 ## Atenção — este universo tem arquitetura de personagem própria
-Diferente de Zelda/Final Fantasy, o treinador (jogador) NÃO usa a ficha
-padrão do referencia-swade.md — ele é minimalista e sem estatística. Toda a
-mecânica de combate vive nos 3 Pokémon dele. Leia a seção "Ficha do
-Treinador" e "Os 3 Pokémon" abaixo com atenção antes de gerar qualquer
-personagem ou NPC neste universo — é obrigatório seguir essa estrutura
-sempre que a aventura for de Pokémon.
+Diferente de Zelda/Final Fantasy, a arquitetura de personagem muda de acordo
+com o "Modo de Campanha" (ver seção abaixo) — leia ela ANTES de gerar
+qualquer personagem ou NPC, já que ela decide se você usa a estrutura
+Treinador+3 Pokémon ou a estrutura Mystery Dungeon (jogador = Pokémon
+direto).
 
 ## Sobre o campo "Modo de Campanha" (OBRIGATÓRIO escolher um)
 
