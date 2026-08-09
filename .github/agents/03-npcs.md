@@ -17,6 +17,27 @@ treinador dono. Use o mapeamento de Espécie→Raça e Papel de Combate descrito
 na referência pra cada Pokémon. O treinador em si NUNCA luta — em combate,
 só os Pokémon dele aparecem na lista de NPCs Combatentes.
 
+Passo 0 — Determine a "raca" de cada NPC. Padrão é "Humano", a menos que
+exista um documento de referência de universo (lido antes desta instrução)
+que defina um mapeamento diferente — nesse caso, siga a tabela de raças
+daquele documento. A raça sempre precisa ser uma das 9 raças oficiais do
+referencia-swade.md (nunca invente uma décima). Se o NPC for combatente,
+aplique os traços mecânicos da raça escolhida diretamente:
+- Se a raça garante um atributo mínimo maior (ex: Elfo tem Agilidade d6 no
+  lugar de d4), já preencha o atributo correspondente com esse dado mínimo,
+  nunca abaixo dele.
+- Se a raça dá Armadura fixa (Sáurio: +2), some isso em "armadura_bonus"
+  normalmente, junto de qualquer armadura física que o NPC vista por cima.
+- Se a raça modifica Resistência diretamente (Aviano: -1; Aquariano: +1;
+  Pequenino: -1 por Tamanho -1), preencha "modificador_racial_resistencia"
+  com esse valor. Para as raças sem esse traço (Humano, Meio-Elfo, Elfo,
+  Rakashano, Androide, Sáurio — a de Sáurio já vira armadura_bonus, não
+  modificador de Resistência), deixe "modificador_racial_resistencia": 0.
+- Traços narrativos da raça sem efeito em ficha (Forasteiro, Dependência,
+  Movimentação Reduzida, Não Sabe Nadar, Sanguinário, etc.) não viram campo
+  novo — só mencione o que for narrativamente relevante em
+  "diretriz_interpretacao", brevemente.
+
 Passo 1 — Decida se o NPC é combatente:
 - Combatente: pode entrar em confronto/ação, mesmo que raramente.
 - Não-combatente: só diálogo/investigação, nunca luta.
