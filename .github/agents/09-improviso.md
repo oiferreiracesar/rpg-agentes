@@ -24,7 +24,26 @@ fluxo se o mestre não estivesse preparado (atacar um NPC pacífico, pular uma
 etapa do roteiro, confiar demais ou de menos em algum NPC-chave, contradizer o
 tema central num final). Cada gatilho precisa de uma resposta prática e curta.
 
-Passo 4 — Para cada NPC que tem falas relevantes na aventura (normalmente os
+Passo 4 — Antes de gerar banco de falas pra qualquer NPC, confira output/00-universo.txt
+pra saber se ele é um Pokémon (universo "pokemon") ou um Digimon (universo
+"digimon"), já que a forma de "falar" muda bastante entre eles:
+
+- **Digimon** (qualquer modo): fala normalmente, com opiniões e personalidade
+  próprias — gere banco de falas do jeito padrão, sem tratamento especial.
+- **Pokémon, modo "mystery_dungeon"** (ver output/00-modo-campanha.txt): fala
+  normalmente com outros Pokémon — gere banco de falas do jeito padrão.
+- **Pokémon, modo "treinador"**: NÃO tem fala em língua humana. Em vez de
+  "frase_coringa" e "reacoes" com diálogo normal, gere:
+  - "frase_coringa": o nome da espécie repetido com uma indicação de tom
+    entre parênteses (ex: "Charmander! (tom desafiador)")
+  - "reacoes": troque "fala" por uma descrição curta de comportamento/
+    linguagem corporal em vez de palavras (ex: gatilho: "for oferecido
+    comida" → reação: "orelhas se erguem, aproxima-se com cautela mas
+    interessado")
+  O TREINADOR desse Pokémon, por outro lado, fala normalmente — gere banco
+  de falas padrão pra ele, sem essa restrição.
+
+Para cada NPC que tem falas relevantes na aventura (normalmente os
 que aparecem em mais de uma cena, ou que carregam um twist), gere um "banco de
 falas": uma frase-coringa (pra o mestre ler quando travar, funciona em quase
 qualquer pergunta) e 2 a 4 reações a perguntas ou atitudes prováveis dos
