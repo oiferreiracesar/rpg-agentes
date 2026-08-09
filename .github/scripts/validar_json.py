@@ -118,6 +118,9 @@ def validar_roteirista(v, data, nome_arquivo):
 def validar_npcs(v, data, nome_arquivo):
     if data is None:
         return
+
+    ids_existentes = {n["id"]: n for n in data.get("npcs", []) if "id" in n}
+
     for npc in data.get("npcs", []):
         nome = npc.get("nome_exibicao", npc.get("id", "?"))
         origem = f"{nome_arquivo}, NPC '{nome}'"
@@ -125,6 +128,21 @@ def validar_npcs(v, data, nome_arquivo):
         raca = npc.get("raca")
         if raca and raca not in RACAS_OFICIAIS:
             v.aviso(f"{origem}: raça '{raca}' não é uma das 9 raças oficiais")
+
+        # Fix A: valida treinador_id / tamer_id (referências internas entre NPCs)
+        for campo in ("treinador_id", "tamer_id"):
+            ref_id = npc.get(campo)
+            if ref_id is None:
+                continue
+            if ref_id not in ids_existentes:
+                v.erro(f"{origem}: '{campo}' aponta para '{ref_id}', que não existe em {nome_arquivo}")
+            else:
+                dono = ids_existentes[ref_id]
+                if dono.get("combatente"):
+                    v.aviso(
+                        f"{origem}: '{campo}' aponta para '{ref_id}', que está marcado "
+                        f"como combatente — treinador/Tamer deveria ser sempre não-combatente"
+                    )
 
         if npc.get("combatente"):
             atributos = npc.get("atributos", {})
@@ -173,6 +191,34 @@ def validar_npcs(v, data, nome_arquivo):
                 v.aviso(f"{origem}: não-combatente sem 'papel' nem 'diretriz_interpretacao' — função narrativa não está clara pro mestre")
 
 
+def validar_mapas_referenciados(v, roteirista, cartografo, nome_arquivo_roteirista, nome_arquivo_cartografo):
+    # Fix B: todo local_ref citado numa cena precisa ter mapa correspondente
+    if roteirista is None or cartografo is None:
+        return
+    locais_validos = {m["local_ref"] for m in cartografo.get("mapas", []) if "local_ref" in m}
+    for c in roteirista.get("cenas", []):
+        local_ref = c.get("local_ref")
+        if local_ref and local_ref not in locais_validos:
+            v.erro(
+                f"{nome_arquivo_roteirista}, Cena {c.get('numero')}: local_ref "
+                f"'{local_ref}' não tem mapa correspondente em {nome_arquivo_cartografo}"
+            )
+
+
+def validar_documentos_referenciados(v, roteirista, docs, nome_arquivo_docs):
+    # Fix C: todo cena_onde_aparece de um documento precisa referenciar cena real
+    if roteirista is None or docs is None:
+        return
+    cenas_validas = {c["numero"] for c in roteirista.get("cenas", [])}
+    for d in docs.get("documentos", []):
+        cena_ref = d.get("cena_onde_aparece")
+        if cena_ref is not None and cena_ref not in cenas_validas:
+            v.aviso(
+                f"{nome_arquivo_docs}: documento '{d.get('nome','?')}' referencia "
+                f"cena {cena_ref} que não existe — ele não vai aparecer em nenhuma cena do compilado"
+            )
+
+
 def validar_sonoplastia(v, data, roteirista, nome_arquivo):
     if data is None or roteirista is None:
         return
@@ -213,26 +259,33 @@ def main():
     args = parser.parse_args()
     p = args.pasta
 
+    def caminho(nome):
+        return os.path.join(p, nome)
+
     v = Validador()
 
-    roteirista = carregar_json(v, os.path.join(p, "01-roteirista.json"))
-    npcs = carregar_json(v, os.path.join(p, "03-npcs.json"))
-    cartografo = carregar_json(v, os.path.join(p, "04-cartografo.json"))
-    sonoplastia = carregar_json(v, os.path.join(p, "05-sonoplastia.json"))
-    animador = carregar_json(v, os.path.join(p, "08-animador.json"))
-    improviso = carregar_json(v, os.path.join(p, "09-improviso.json"))
+    roteirista = carregar_json(v, caminho("01-roteirista.json"))
+    npcs = carregar_json(v, caminho("03-npcs.json"))
+    cartografo = carregar_json(v, caminho("04-cartografo.json"))
+    sonoplastia = carregar_json(v, caminho("05-sonoplastia.json"))
+    documentos = carregar_json(v, caminho("06-documentos.json"))
+    animador = carregar_json(v, caminho("08-animador.json"))
+    improviso = carregar_json(v, caminho("09-improviso.json"))
 
     if roteirista is not None:
-        validar_roteirista(v, roteirista, os.path.join(p, "01-roteirista.json"))
+        validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
     if npcs is not None:
-        validar_npcs(v, npcs, os.path.join(p, "03-npcs.json"))
+        validar_npcs(v, npcs, caminho("03-npcs.json"))
+    if roteirista is not None and cartografo is not None:
+        validar_mapas_referenciados(v, roteirista, cartografo, caminho("01-roteirista.json"), caminho("04-cartografo.json"))
+    if roteirista is not None and documentos is not None:
+        validar_documentos_referenciados(v, roteirista, documentos, caminho("06-documentos.json"))
     if sonoplastia is not None:
-        validar_sonoplastia(v, sonoplastia, roteirista, os.path.join(p, "05-sonoplastia.json"))
+        validar_sonoplastia(v, sonoplastia, roteirista, caminho("05-sonoplastia.json"))
     if animador is not None:
-        validar_animador(v, animador, roteirista, os.path.join(p, "08-animador.json"))
+        validar_animador(v, animador, roteirista, caminho("08-animador.json"))
     if improviso is not None:
-        validar_improviso(v, improviso, npcs, os.path.join(p, "09-improviso.json"))
-    _ = cartografo
+        validar_improviso(v, improviso, npcs, caminho("09-improviso.json"))
 
     print("=" * 60)
     print(f"RELATÓRIO DE VALIDAÇÃO — {p}")
