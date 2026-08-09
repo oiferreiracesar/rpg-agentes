@@ -56,6 +56,21 @@ o ritmo sem trabalho de preparo):**
 - Desafio físico literal — equilibrar, amarrar um nó, empilhar — só sugira se
   a cena pedir isso narrativamente (ex: um ritual que exige destreza real)
 
+**Tipos de decisão por sorte, pra momentos GRANDES (categoria "decisao_tensao",
+nunca use pra teste comum de perícia — só pra decisões narrativas maiores,
+tipo escolher entre múltiplos finais quando o grupo empata, ou definir o
+destino de um NPC importante):**
+- **Roleta de Decisão**: gere de 2 a 6 opções, com pesos opcionais (se
+  quiser que uma opção seja mais provável que outra — narrativamente
+  justificável, ex: "o grupo agiu bem, então o final ruim tem peso menor").
+  Gere só os DADOS (opções, pesos, contexto) — o script monta e verifica a
+  roleta de verdade, com as fatias proporcionais corretas.
+
+Ao sugerir esse tipo, considere também mencionar ao mestre que existem sites
+gratuitos de roleta digital (como wheeldecide.com ou pickerwheel.com) como
+alternativa à versão impressa, caso ele prefira girar na tela em vez de
+recortar papel — inclua isso na "contexto_narrativo" quando fizer sentido.
+
 Passo 3 — Para os tipos com dado estruturado, gere só os DADOS — não desenhe
 a grade/disposição final. Isso é montado depois por scripts determinísticos
 que verificam matematicamente que tudo bate. Para os tipos só de texto, gere
@@ -63,13 +78,22 @@ o conteúdo pronto pra uso direto. Para os tipos com imagem/áudio, gere a
 descrição/prompt de geração. Para os tipos físicos/sociais, gere só a
 instrução de como conduzir.
 
+Quando o tipo depender de geração externa (labirinto, sete_erros, jigsaw,
+silhueta), você pode opcionalmente sugerir, dentro de "contexto_narrativo",
+um site real e gratuito adequado — por exemplo, puzzlegenio.com cobre
+cruzadinha, sudoku, caça-palavras, jigsaw, labirinto e criptograma, tudo em
+PDF, sem cadastro. Nunca invente URL — se não tiver certeza de um site
+real e atual pro tipo específico, não sugira nenhum, deixe só o prompt de
+geração de imagem.
+
 Gere SEMPRE um JSON neste formato exato:
 
 {
   "dinamicas": [
     {
       "titulo": "Nome temático da dinâmica",
-      "tipo": "caca_palavras | palavras_cruzadas | anagrama | sequencia_logica | cifra | cadeado_numerico | sudoku_tematico | enigma | trivia_em_cadeia | fragmentos_para_ordenar | mensagem_espelhada | labirinto | sete_erros | jigsaw | silhueta | sequencia_sonora | mimica_ou_desenho | caixa_misteriosa | desafio_fisico",
+      "tipo": "caca_palavras | palavras_cruzadas | anagrama | sequencia_logica | cifra | cadeado_numerico | sudoku_tematico | enigma | trivia_em_cadeia | fragmentos_para_ordenar | mensagem_espelhada | labirinto | sete_erros | jigsaw | silhueta | sequencia_sonora | mimica_ou_desenho | caixa_misteriosa | desafio_fisico | roleta_decisao",
+      "categoria": "script_verificavel | texto_pronto | precisa_geracao_externa | fisico_social | decisao_tensao",
       "categoria": "script_verificavel | texto_pronto | precisa_geracao_externa | fisico_social",
       "cena_ref": numero da cena onde entra,
       "contexto_narrativo": "1-2 frases de como o mestre apresenta isso na cena",
