@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import random
@@ -139,9 +140,14 @@ def slugify(text):
 
 
 def main():
-    path = "output/10-puzzles.json"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
+    args = parser.parse_args()
+    p = args.pasta
+
+    path = os.path.join(p, "10-puzzles.json")
     if not os.path.exists(path):
-        print("output/10-puzzles.json não encontrado — nada a gerar (ok, esse passo é opcional).", file=sys.stderr)
+        print(f"{path} não encontrado — nada a gerar (ok, esse passo é opcional).", file=sys.stderr)
         return
 
     with open(path, encoding="utf-8") as f:
@@ -149,10 +155,11 @@ def main():
 
     dinamicas = [d for d in data.get("dinamicas", []) if d.get("tipo") == "caca_palavras"]
     if not dinamicas:
-        print("Nenhuma dinâmica do tipo caca_palavras encontrada em 10-puzzles.json.")
+        print(f"[{p}] Nenhuma dinâmica do tipo caca_palavras encontrada em 10-puzzles.json.")
         return
 
-    os.makedirs("output/puzzles", exist_ok=True)
+    pasta_puzzles = os.path.join(p, "puzzles")
+    os.makedirs(pasta_puzzles, exist_ok=True)
 
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
@@ -175,11 +182,11 @@ def main():
                 continue
 
         slug = slugify(titulo)
-        p1 = f"output/puzzles/{slug}_JOGADORES.pdf"
-        p2 = f"output/puzzles/{slug}_GABARITO.pdf"
+        p1 = os.path.join(pasta_puzzles, f"{slug}_JOGADORES.pdf")
+        p2 = os.path.join(pasta_puzzles, f"{slug}_GABARITO.pdf")
         make_pdf(p1, titulo, grid, size, placements, words, with_answers=False)
         make_pdf(p2, titulo, grid, size, placements, words, with_answers=True)
-        print(f"OK: '{titulo}' -> {p1} e {p2} (grade {size}x{size}, {len(words)} palavras verificadas)")
+        print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (grade {size}x{size}, {len(words)} palavras verificadas)")
 
 
 if __name__ == "__main__":
