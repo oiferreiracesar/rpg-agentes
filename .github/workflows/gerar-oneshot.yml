@@ -107,6 +107,22 @@ jobs:
             Leia output/01-roteirista.json e output/03-npcs.json como entrada.
             Gere o JSON pedido e salve em output/09-improviso.json.
 
+      - name: 4e. Diretor de Dinâmicas Físicas
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/10-puzzles.md
+            e siga-as rigorosamente.
+            Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
+            Gere o JSON pedido e salve em output/10-puzzles.json.
+
+      - name: 4f. Montar e verificar caça-palavras (algoritmo, sem IA)
+        run: python3 .github/scripts/gerar_caca_palavras.py
+
       - name: 5. Sonoplastia
         uses: google-github-actions/run-gemini-cli@v0
         env:
