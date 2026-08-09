@@ -15,6 +15,30 @@ Treinador" e "Os 3 Pokémon" abaixo com atenção antes de gerar qualquer
 personagem ou NPC neste universo — é obrigatório seguir essa estrutura
 sempre que a aventura for de Pokémon.
 
+## Sobre o campo "Modo de Campanha" (OBRIGATÓRIO escolher um)
+
+Este universo tem dois modos de jogo estruturalmente diferentes — o valor
+está em output/00-modo-campanha.txt:
+
+**"treinador"** (modo clássico — jogos principais da franquia)
+Use a estrutura completa de "Ficha do Treinador" + "Os 3 Pokémon" descrita
+abaixo. O jogador é humano, comanda Pokémon que rolam por ele.
+
+**"mystery_dungeon"** (modo Mystery Dungeon)
+NÃO existe treinador. O PRÓPRIO jogador É um Pokémon — gera a ficha dele
+usando diretamente o mapeamento "Espécie → Raça mecânica" e "Papel de
+Combate" abaixo, como um combatente comum e completo (atributos,
+pericia_chave, arma, resistencia, aparar — igual qualquer NPC combatente do
+referencia-swade.md, só que é a própria ficha de personagem jogador). Ele
+rola por si mesmo, sem camada de comando. NPCs também são sempre Pokémon
+diretos nesse modo — nunca gere NPC "treinador" aqui, essa figura não existe
+na sociedade deste modo.
+- Locais: vilas de Pokémon, guildas de resgate, masmorras geradas
+  proceduralmente (trate como Dungeon do Bloco 4 normalmente) — nunca cidade
+  humana comum nem Centro Pokémon com Enfermeira Joy
+- Tom: aventura de resgate/exploração cooperativa entre Pokémon, ainda mais
+  caloroso e comunitário que o modo Treinador
+
 ## Sobre o campo "Região de Referência" (em vez de "jogo", já que o mundo
 muda pouco entre jogos da mesma geração)
 
