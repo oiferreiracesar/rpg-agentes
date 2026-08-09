@@ -90,14 +90,16 @@ Gere SEMPRE um JSON neste formato:
     {
       "id", "nome_exibicao", "papel", "cenas_onde_aparece": [],
       "descricao_curta", "combatente": true/false,
+      "raca": "uma das 9 raças oficiais do referencia-swade.md",
       "atributos": { "agilidade","astucia","espirito","forca","vigor" } (se combatente),
       "pericia_chave": { "nome","dado" } (se combatente),
       "arma": { "nome","dano" } (se combatente),
       "armadura_bonus": numero (se combatente, 0 se não tiver armadura),
+      "modificador_racial_resistencia": numero (se combatente, 0 se a raça não modifica Resistência diretamente),
       "carta_selvagem": true/false (se combatente),
       "resistencia": 0 (placeholder, script preenche),
       "aparar": 0 (placeholder, script preenche),
-      "diretriz_interpretacao", "tipo_token", "prompt_imagem"
+      "diretriz_interpretacao", "tipo_token", "prompt_imagem",
       "treinador_id": "id exato do NPC treinador dono (só em Pokémon; omitir em qualquer outro universo ou se este NPC não for um Pokémon de treinador)"
     }
   ]
