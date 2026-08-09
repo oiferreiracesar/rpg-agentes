@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -62,9 +63,6 @@ def cutscenes_por_cena(animador):
         return mapa
     for cs in animador.get("cutscenes", []):
         ref = cs.get("cena_ref")
-        # cutscenes de final (mesmo que tambem tenham cena_ref preenchido) só
-        # aparecem em "Finais Possíveis" — evita listar o mesmo final 3x dentro
-        # da cena de clímax antes da escolha ser feita
         if ref is not None and not cs.get("final_ref"):
             mapa.setdefault(ref, []).append(cs)
     return mapa
@@ -81,28 +79,27 @@ def cutscenes_por_final(animador):
     return mapa
 
 
-def cutscene_abertura(animador):
-    if not animador:
-        return None
-    for cs in animador.get("cutscenes", []):
-        if cs.get("tipo") == "abertura":
-            return cs
-    return None
-
-
 def main():
-    roteirista_path = "output/01-roteirista.json"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
+    args = parser.parse_args()
+    p = args.pasta
+
+    def caminho(nome):
+        return os.path.join(p, nome)
+
+    roteirista_path = caminho("01-roteirista.json")
     if not os.path.exists(roteirista_path):
-        print("ERRO: output/01-roteirista.json não encontrado.", file=sys.stderr)
+        print(f"ERRO: {roteirista_path} não encontrado.", file=sys.stderr)
         sys.exit(1)
 
     roteirista = read_json(roteirista_path)
-    npcs_data = read_json_opt("output/03-npcs.json") or {"npcs": []}
-    cartografo = read_json_opt("output/04-cartografo.json") or {"mapas": []}
-    sono = read_json_opt("output/05-sonoplastia.json") or {"sonoplastia": []}
-    docs = read_json_opt("output/06-documentos.json")
-    animador = read_json_opt("output/08-animador.json")
-    improviso = read_json_opt("output/09-improviso.json")
+    npcs_data = read_json_opt(caminho("03-npcs.json")) or {"npcs": []}
+    cartografo = read_json_opt(caminho("04-cartografo.json")) or {"mapas": []}
+    sono = read_json_opt(caminho("05-sonoplastia.json")) or {"sonoplastia": []}
+    docs = read_json_opt(caminho("06-documentos.json"))
+    animador = read_json_opt(caminho("08-animador.json"))
+    improviso = read_json_opt(caminho("09-improviso.json"))
 
     cs_por_cena = cutscenes_por_cena(animador)
     cs_por_final = cutscenes_por_final(animador)
@@ -159,7 +156,6 @@ def main():
     md.append("---")
     md.append("")
 
-    # ---------- Cutscenes (08-animador.json) ----------
     if animador and animador.get("cutscenes"):
         md.append("## 🎬 Cutscenes")
         md.append(
@@ -200,15 +196,16 @@ def main():
     md.append("### NPCs Combatentes")
     combat_npcs = [n for n in npcs_data["npcs"] if n.get("combatente")]
     if combat_npcs:
-        md.append("| Nome | Carta Selvagem | Atributos | Perícia-Chave | Arma (Dano) | Aparar | Resistência |")
-        md.append("| :--- | :---: | :--- | :--- | :--- | :---: | :---: |")
+        md.append("| Nome | Raça | Carta Selvagem | Atributos | Perícia-Chave | Arma (Dano) | Aparar | Resistência |")
+        md.append("| :--- | :--- | :---: | :--- | :--- | :--- | :---: | :---: |")
         for n in combat_npcs:
             pc = n.get("pericia_chave", {})
             arma = n.get("arma", {})
             armadura = n.get("armadura_bonus", 0) or 0
             resistencia_str = f"{n.get('resistencia', '-')}" + (f" ({armadura})" if armadura else "")
             md.append(
-                f"| {n['nome_exibicao']} | {'⭐ Sim' if n.get('carta_selvagem') else 'Não'} | "
+                f"| {n['nome_exibicao']} | {n.get('raca', 'Humano')} | "
+                f"{'⭐ Sim' if n.get('carta_selvagem') else 'Não'} | "
                 f"{attrs_str(n.get('atributos', {}))} | "
                 f"{pc.get('nome', '-')} ({pc.get('dado', '-')}) | "
                 f"{arma.get('nome', '-')} ({arma.get('dano', '-')}) | "
@@ -252,12 +249,9 @@ def main():
     md.append("---")
     md.append("")
 
-    # ---------- Tabela de Improviso (09-improviso.json) ----------
     if improviso:
         md.append("## 🎲 Tabela de Improviso")
-        md.append(
-            "Pra quando os jogadores fizerem algo que não está no roteiro."
-        )
+        md.append("Pra quando os jogadores fizerem algo que não está no roteiro.")
         md.append("")
 
         if improviso.get("framework_geral"):
@@ -274,6 +268,19 @@ def main():
             md.append("| --- | --- |")
             for item in improviso["situacoes_comuns"]:
                 md.append(f"| {item.get('situacao', '')} | {item.get('como_resolver', '')} |")
+            md.append("")
+
+        if improviso.get("loot_ambiental"):
+            md.append("### 🎒 Loot Ambiental")
+            md.append(
+                "Pra quando os jogadores xeretarem, quebrarem ou remexerem "
+                "algo fora do roteiro. Role 1d10 ou escolha o que combina."
+            )
+            md.append("")
+            md.append("| Item | Uso sugerido |")
+            md.append("| --- | --- |")
+            for item in improviso["loot_ambiental"]:
+                md.append(f"| {item.get('item', '')} | {item.get('uso_sugerido', '')} |")
             md.append("")
 
         if improviso.get("gatilhos_especificos"):
@@ -351,6 +358,7 @@ def main():
                 md.append(f"- **{npc['nome_exibicao']}** ({npc.get('papel', '')})")
                 md.append(f"  - Descrição: {npc.get('descricao_curta', '')}")
                 if npc.get("combatente"):
+                    md.append(f"  - Raça: {npc.get('raca', 'Humano')}")
                     md.append(f"  - Atributos: {attrs_str(npc.get('atributos', {}))}")
                     pc = npc.get("pericia_chave", {})
                     md.append(f"  - Perícia-Chave: {pc.get('nome', '-')} ({pc.get('dado', '-')})")
@@ -473,11 +481,11 @@ def main():
     md.append("")
 
     text = "\n".join(md)
-    os.makedirs("output", exist_ok=True)
-    with open("output/07-compilado.md", "w", encoding="utf-8") as f:
+    saida = caminho("07-compilado.md")
+    with open(saida, "w", encoding="utf-8") as f:
         f.write(text)
 
-    print(f"Markdown gerado sem uso de IA — output/07-compilado.md ({len(text)} caracteres).")
+    print(f"Markdown gerado sem uso de IA — {saida} ({len(text)} caracteres).")
 
 
 if __name__ == "__main__":
