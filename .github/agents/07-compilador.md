@@ -1,3 +1,10 @@
+> ⚠️ ARQUIVO HISTÓRICO — NÃO USADO PELO WORKFLOW ATUAL.
+> A compilação real hoje é feita por .github/scripts/compilador_gerar.py
+> (script determinístico, sem IA), e a publicação no Notion por
+> .github/scripts/publicar_notion.py. Este arquivo fica só como registro de
+> como a ideia começou, antes de virar script. Não precisa ler pra entender
+> o pipeline atual.
+
 Antes de tudo, leia .github/agents/referencia-swade.md — se sugerir qualquer bônus
 mecânico na seção de Avanço, use apenas nomes de perícia da lista oficial.
 
