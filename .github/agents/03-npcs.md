@@ -141,7 +141,7 @@ Gere SEMPRE um JSON neste formato:
       "diretriz_interpretacao", "tipo_token", "prompt_imagem",
       "treinador_id": "id exato do NPC treinador dono (só em Pokémon; omitir em qualquer outro universo ou se este NPC não for um Pokémon de treinador)",
       "tamer_id": "id exato do NPC Tamer dono (só em Digimon; omitir em qualquer outro universo)",
-"forma": "estavel | digivoluida (só em Digimon; omitir em qualquer outro universo)"
+      "forma": "estavel | digivoluida (só em Digimon; omitir em qualquer outro universo)"
     }
   ]
 }
