@@ -9,6 +9,21 @@ def read_json(path):
         return json.load(f)
 
 
+def normalize_puzzle_slug(text):
+    repl = str.maketrans("ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ", "AAAAAEEEEIIIIOOOOOUUUUC")
+    return text.upper().translate(repl)
+
+
+def slugify_puzzle(text):
+    """Reproduz exatamente a lógica de slug usada pelos scripts
+    gerar_caca_palavras.py, gerar_cifra.py, gerar_anagrama.py,
+    gerar_sequencia_logica.py, gerar_palavras_cruzadas.py,
+    gerar_cadeado_numerico.py e gerar_sudoku_tematico.py — é assim que
+    calculamos o nome do PDF real pra linkar corretamente."""
+    text = normalize_puzzle_slug(text).lower().replace("_", " ")
+    return "".join(ch if ch.isalnum() else "_" for ch in text).strip("_")
+
+
 def read_json_opt(path):
     return read_json(path) if os.path.exists(path) else None
 
@@ -79,6 +94,28 @@ def cutscenes_por_final(animador):
     return mapa
 
 
+def render_dados_puzzle_generico(md, dados):
+    """Mostra qualquer estrutura de 'dados' de forma legível, sem depender
+    de nome de campo fixo — usado pelos tipos de estrutura livre (texto
+    pronto, geração externa, físico/social)."""
+    for chave, valor in dados.items():
+        chave_legivel = chave.replace("_", " ").capitalize()
+        if isinstance(valor, list):
+            md.append(f"- **{chave_legivel}:**")
+            for item in valor:
+                if isinstance(item, dict):
+                    partes = " — ".join(f"{k.replace('_',' ')}: {v}" for k, v in item.items())
+                    md.append(f"  - {partes}")
+                else:
+                    md.append(f"  - {item}")
+        elif isinstance(valor, dict):
+            md.append(f"- **{chave_legivel}:**")
+            for k, v in valor.items():
+                md.append(f"  - {k.replace('_',' ')}: {v}")
+        else:
+            md.append(f"- **{chave_legivel}:** {valor}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
@@ -100,6 +137,7 @@ def main():
     docs = read_json_opt(caminho("06-documentos.json"))
     animador = read_json_opt(caminho("08-animador.json"))
     improviso = read_json_opt(caminho("09-improviso.json"))
+    puzzles = read_json_opt(caminho("10-puzzles.json"))
 
     cs_por_cena = cutscenes_por_cena(animador)
     cs_por_final = cutscenes_por_final(animador)
@@ -308,6 +346,82 @@ def main():
 
         md.append("---")
         md.append("")
+
+    if puzzles and puzzles.get("dinamicas"):
+        SCRIPT_VERIFICAVEL = {
+            "caca_palavras", "palavras_cruzadas", "anagrama", "sequencia_logica",
+            "cifra", "cadeado_numerico", "sudoku_tematico",
+        }
+        TITULOS_TIPO = {
+            "caca_palavras": "Caça-palavras", "palavras_cruzadas": "Palavras Cruzadas",
+            "anagrama": "Anagrama", "sequencia_logica": "Sequência Lógica",
+            "cifra": "Cifra", "cadeado_numerico": "Cadeado Numérico",
+            "sudoku_tematico": "Sudoku Temático", "enigma": "Enigma",
+            "trivia_em_cadeia": "Trivia em Cadeia",
+            "fragmentos_para_ordenar": "Fragmentos pra Ordenar",
+            "mensagem_espelhada": "Mensagem Espelhada", "labirinto": "Labirinto Visual",
+            "sete_erros": "Jogo dos Sete Erros", "jigsaw": "Quebra-cabeça (Jigsaw)",
+            "silhueta": "Silhueta", "sequencia_sonora": "Sequência Sonora",
+            "mimica_ou_desenho": "Mímica ou Desenho Coletivo",
+            "caixa_misteriosa": "Caixa Misteriosa", "desafio_fisico": "Desafio Físico",
+        }
+
+        md.append("## 🧩 Dinâmicas e Puzzles")
+        md.append(
+            "Pausas físicas/interativas pra dar ritmo diferente à mesa. Cada uma "
+            "indica em qual cena encaixar."
+        )
+        md.append("")
+
+        for d in puzzles["dinamicas"]:
+            tipo = d.get("tipo", "")
+            titulo = d.get("titulo", TITULOS_TIPO.get(tipo, tipo))
+            categoria = d.get("categoria", "")
+            cena_ref = d.get("cena_ref")
+            contexto = d.get("contexto_narrativo", "")
+            dados = d.get("dados", {})
+
+            md.append(f"### {titulo}")
+            md.append(f"**Tipo:** {TITULOS_TIPO.get(tipo, tipo)}")
+            if cena_ref is not None:
+                md.append(f"**Cena sugerida:** {cena_ref}")
+            if contexto:
+                md.append(f"**Contexto:** {contexto}")
+            md.append("")
+
+            if tipo in SCRIPT_VERIFICAVEL or categoria == "script_verificavel":
+                slug = slugify_puzzle(titulo)
+                md.append(
+                    "📄 PDF verificado automaticamente — pronto pra imprimir:  \n"
+                    f"[Versão dos jogadores](puzzles/{slug}_JOGADORES.pdf) · "
+                    f"[Gabarito do mestre](puzzles/{slug}_GABARITO.pdf)"
+                )
+                md.append("")
+                md.append(
+                    "> Se os links acima não abrirem, o script correspondente "
+                    "(`gerar_*.py`) ainda não rodou pra este puzzle — confira o "
+                    "log do pipeline."
+                )
+            elif categoria == "precisa_geracao_externa":
+                md.append(
+                    "🎨 **Precisa de geração externa** (imagem ou áudio) — este "
+                    "conceito ainda não vira PDF sozinho. Gere manualmente no Flow, "
+                    "Nano Banana ou similar, usando os dados abaixo como base."
+                )
+                md.append("")
+                render_dados_puzzle_generico(md, dados)
+            elif categoria == "fisico_social":
+                md.append("🎭 **Dinâmica física/social** — não precisa de nenhum material impresso.")
+                md.append("")
+                render_dados_puzzle_generico(md, dados)
+            else:
+                md.append("📋 **Pronto pra usar direto** — sem necessidade de PDF.")
+                md.append("")
+                render_dados_puzzle_generico(md, dados)
+
+            md.append("")
+            md.append("---")
+            md.append("")
 
     npcs_ja_apresentados = {}
     mapas_ja_apresentados = {}
