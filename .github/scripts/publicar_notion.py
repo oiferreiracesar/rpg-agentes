@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import re
@@ -212,6 +213,10 @@ def markdown_to_blocks(md_text):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs/markdown (padrão: output)")
+    args = parser.parse_args()
+
     token = os.environ.get("NOTION_TOKEN")
     parent_id_raw = os.environ.get("NOTION_PARENT_PAGE_ID")
     if not token or not parent_id_raw:
@@ -219,14 +224,14 @@ def main():
         sys.exit(1)
     parent_id = extract_page_id(parent_id_raw)
 
-    md_path = os.path.join("output", "07-compilado.md")
+    md_path = os.path.join(args.pasta, "07-compilado.md")
     if not os.path.exists(md_path):
         print(f"ERRO: {md_path} não encontrado.", file=sys.stderr)
         sys.exit(1)
     with open(md_path, encoding="utf-8") as f:
         md_content = f.read()
 
-    roteirista_path = os.path.join("output", "01-roteirista.json")
+    roteirista_path = os.path.join(args.pasta, "01-roteirista.json")
     titulo = "Oneshot Gerada"
     if os.path.exists(roteirista_path):
         with open(roteirista_path, encoding="utf-8") as f:
