@@ -414,6 +414,20 @@ def main():
                 md.append("🎭 **Dinâmica física/social** — não precisa de nenhum material impresso.")
                 md.append("")
                 render_dados_puzzle_generico(md, dados)
+            elif categoria == "decisao_tensao":
+                slug = slugify_puzzle(titulo)
+                md.append(
+                    "🎡 **Decisão por sorte, pra momento grande** — use só em "
+                    "escolhas narrativas importantes, nunca em teste comum."
+                )
+                md.append("")
+                md.append(f"📄 [Roleta pronta pra imprimir e recortar](puzzles/{slug}_ROLETA.pdf)")
+                md.append("")
+                md.append(
+                    "> Alternativa digital: sites gratuitos como wheeldecide.com "
+                    "ou pickerwheel.com fazem a mesma coisa na tela, se preferir "
+                    "não imprimir."
+                )
             else:
                 md.append("📋 **Pronto pra usar direto** — sem necessidade de PDF.")
                 md.append("")
