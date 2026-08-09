@@ -46,5 +46,13 @@ Regras importantes:
   Descreva a mudança de estado em "texto_leitura", não no "local_ref".
 - Valores numéricos (como "modificador") nunca devem ter o sinal "+" na frente. Escreva
   1, não +1. O sinal "+" na frente de um número quebra a validade do JSON.
+- Se existir um arquivo output/00-campanha.json E um output/00-sessoes-anteriores.txt,
+  esta NÃO é uma oneshot isolada — é uma sessão dentro de uma campanha maior.
+  Leia os dois: use o "resumo" e "verdade_revelada_nesta_sessao" da sessão
+  correspondente em 00-campanha.json como a espinha dorsal desta oneshot
+  específica, mantenha os "npcs_recorrentes_presentes" com continuidade real
+  (não reapresente quem já apareceu antes do zero), e NÃO resolva o
+  "vilao_da_campanha" completamente a menos que esta seja a última sessão. Se
+  esses dois arquivos não existirem, gere normalmente como oneshot isolada.
 Salve o resultado em output/01-roteirista.json — apenas o JSON válido, sem texto antes ou
 depois, sem blocos de código markdown (sem ```).
