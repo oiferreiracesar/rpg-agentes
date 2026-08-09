@@ -66,6 +66,10 @@ Regras importantes:
   "npcs_presentes" apenas o ID do TREINADOR (nunca dos Pokémon dele
   individualmente) — a expansão de um treinador em Pokémon combatentes é
   responsabilidade do agente de NPCs, não sua.
+- Em universo "digimon" (ver output/00-universo.txt), coloque em
+  "npcs_presentes" apenas o ID do TAMER (nunca do parceiro Digimon dele
+  individualmente) — a expansão de um Tamer em parceiro Digimon é
+  responsabilidade do agente de NPCs, não sua.
 - Em modo campanha, o twist desta sessão (obrigatório ter ao menos 1, "ninguém
   se vê como vilão") deve estar CONECTADO ao "vilao_da_campanha.verdade_por_tras"
   de 00-campanha.json — não é uma revelação de moral cinzenta solta, é uma
