@@ -17,6 +17,16 @@ um inimigo, usar item de forma criativa, investigar algo fora do escrito, não
 querer participar de uma cena). Para cada uma, uma linha curta de como resolver
 sem travar o ritmo da mesa.
 
+Passo 2.5 — Gere uma "Tabela de Loot Ambiental": 8 a 10 itens genéricos e
+temáticos que o mestre pode dar quando os jogadores xeretarem, quebrarem ou
+remexerem algo fora do roteiro (um vaso, uma gaveta, um corpo, um console —
+adapte o tipo de objeto ao gênero da aventura). Baseie o SABOR de cada item
+na "bíblia visual" e no tom da aventura (recebida junto do roteirista), mas
+mantenha os itens narrativamente leves — a maioria não deve ter função
+mecânica obrigatória, só sabor ou gancho de sidequest futura. Inclua sempre
+pelo menos 1 entrada "nada de especial" — nem todo lugar precisa ter
+recompensa, isso mantém a exploração livre sem virar máquina de loot.
+
 Passo 3 — Analise a premissa, os twists, os NPCs e os finais desta aventura
 ESPECÍFICA, e gere de 4 a 6 "gatilhos específicos" — coisas que jogadores
 plausivelmente tentariam fazer NESSA aventura em particular, que quebrariam o
