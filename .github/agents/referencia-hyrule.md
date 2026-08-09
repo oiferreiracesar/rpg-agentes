@@ -8,26 +8,63 @@ Este documento cobre a franquia como um todo, em nível de arquétipo e conceito
 — nunca reproduza diálogo, texto ou trecho exato de nenhum jogo específico.
 Trabalhe sempre com nomes, papéis e temas gerais.
 
-## Sobre o campo "Era de Referência"
-Toda geração recebe um campo indicando qual período da linha do tempo usar
-como base tonal e estética (ver lista de eras abaixo, no workflow). Use esse
-campo pra decidir: nível de tecnologia disponível, quais povos são mais
-prováveis de aparecer, e o tom geral (mais sombrio/solitário vs. mais aberto/
-esperançoso). Elementos atemporais (a Triforce, as Três Entidades, o ciclo
-herói-princesa-mal antigo) valem em qualquer era, independente da escolha.
+## Sobre o campo "Jogo de Referência"
+Toda geração recebe o nome de um jogo específico da franquia como âncora de
+tom, tecnologia e povos prováveis. Use a tabela abaixo. Elementos atemporais
+(a Triforce, as Três Entidades, o ciclo herói-princesa-mal antigo) valem
+independente do jogo escolhido — nunca reproduza diálogo, texto, música ou
+cena específica do jogo, só o TOM e os ELEMENTOS gerais dele.
 
-## Linha do tempo, em conceito (nunca cite ano ou jogo específico por nome)
-A lenda de Hyrule se ramifica em três eras narrativas amplas depois de um
-evento fundador de "escolha do herói":
-- **Era Clássica**: reino centralizado, tecnologia predominantemente medieval,
-  o mal antigo ainda é uma ameaça relativamente contida e ritualística
-- **Era do Crepúsculo/Sombra**: um período mais isolado e sombrio, reino
-  fragmentado ou enfraquecido, ameaças ligadas a um mundo paralelo ou espelhado
-- **Era Marítima/Dispersa**: Hyrule submerso ou disperso em ilhas, exploração
-  como tema central, o reino original é lenda distante
-- **Era Moderna/Aberta**: tecnologia ancestral (Sheikah) redescoberta e
-  integrada à vida cotidiana, um cataclismo recente redefiniu o mapa, jogo
-  mais livre entre os povos
+| Jogo de referência | Era (tom/tecnologia) | Notas de ambientação |
+|---|---|---|
+| The Legend of Zelda | Clássica (fundacional) | Reino fragmentado, exploração livre, tom de lenda antiga sendo formada |
+| Zelda II: The Adventure of Link | Clássica | Reino em decadência, ênfase em provações físicas e selos antigos |
+| A Link to the Past | Clássica | Dois mundos espelhados (Luz/Sombra), reino ameaçado por magia proibida |
+| Link's Awakening | Isolada/onírica | Uma ilha isolada, tom intimista e quase de sonho, escala pequena |
+| Ocarina of Time | Clássica | Reino centralizado, tecnologia medieval, mal antigo ritualístico e contido |
+| Majora's Mask | Clássica (tom mais sombrio) | Terra vizinha isolada, ciclo temporal, urgência constante |
+| Oracle of Seasons | Clássica | Ênfase em ciclo das estações como força mágica central |
+| Oracle of Ages | Clássica | Ênfase em viagem/manipulação do tempo como força mágica central |
+| Four Swords | Clássica | Herói dividido em múltiplos, ênfase em cooperação entre "cópias" de si mesmo |
+| The Wind Waker | Marítima/Dispersa | Hyrule submerso, exploração entre ilhas, reino original é lenda distante |
+| Four Swords Adventures | Clássica | Sequência de reinos fragmentados, tom de jornada episódica |
+| The Minish Cap | Clássica (fundacional, escala pequena) | Um povo minúsculo convivendo escondido dos Hylians, artefato central de criação |
+| Twilight Princess | Crepúsculo/Sombra | Reino isolado, tom mais sombrio, ameaça ligada a um mundo espelhado/sombrio |
+| Phantom Hourglass | Marítima/Dispersa | Continuação direta do tom marítimo, ênfase em mares amaldiçoados |
+| Spirit Tracks | Marítima/Dispersa (ferroviária) | Reino reconstruído em torno de trilhos mágicos, sucessor distante |
+| Skyward Sword | Clássica (mais fundacional de todas) | Época mais antiga da lenda, primeiro contato entre povos, reino ainda nos céus |
+| A Link Between Worlds | Clássica | Dois mundos paralelos, ênfase em escolha e mercadejo com um comerciante ambíguo |
+| Tri Force Heroes | Clássica (escala leve) | Reino pequeno, ênfase total em cooperação entre três heróis |
+| Breath of the Wild | Moderna/Aberta | Tecnologia Sheikah redescoberta, cataclismo recente, mundo mais livre |
+| Tears of the Kingdom | Moderna/Aberta (pós-cataclismo recente) | Céus e subsolo explorável, continuidade direta do anterior |
+| Sem preferência específica | — | Use o "consenso geral" da franquia, sem puxar pra nenhum jogo em particular |
+
+> Nota de confiança: meu conhecimento é mais detalhado nos títulos principais
+> de consoles de mesa (Ocarina of Time em diante). Pros títulos portáteis mais
+> antigos (Link's Awakening, Oracle of Seasons/Ages, Minish Cap), trate as
+> notas de ambientação como ponto de partida, não como descrição definitiva.
+
+## Sobre o campo "Momento Temporal"
+Combinado com o Jogo de Referência, define QUANDO a aventura acontece em
+relação à história principal daquele jogo:
+- **Antes dos eventos**: o conflito central daquele jogo ainda não começou ou
+  não é conhecido — tom mais tranquilo, o mundo ainda não sabe do perigo que
+  está por vir
+- **Durante os eventos**: a aventura acontece em paralelo à história
+  principal — os heróis podem ouvir rumores distantes do conflito central,
+  mas NUNCA encontram o herói principal daquele jogo nem interferem no
+  enredo dele
+- **Depois dos eventos**: o conflito central já foi resolvido — tom de
+  reconstrução, consequências residuais, ameaças menores que sobraram
+- **Sem preferência**: não ancore em nenhum momento específico
+
+Regra de segurança narrativa: NUNCA faça os heróis da aventura encontrarem,
+substituírem ou interagirem diretamente com o protagonista principal do jogo
+escolhido, e nunca dê fala própria a ele como NPC central. Mantenha sempre
+como uma história paralela dentro do mesmo mundo — não uma continuação
+literal do enredo daquele jogo específico. (É o mesmo recurso que já usamos
+em "O Despertar da Luz Ancestral": Link está "ausente numa missão distante",
+nunca aparece.)
 
 ## Povos de Hyrule (mapeamento oficial — SEMPRE use estes nomes)
 
@@ -38,10 +75,10 @@ evento fundador de "escolha do herói":
 | Aviano | Rito | Vive em penhascos e montanhas altas (mais comum em eras marítimas/modernas) |
 | Elfo | Sheikah | Guardiões furtivos, servos históricos da coroa, ligados a tecnologia ancestral |
 | Meio-Elfo | Meio-Sheikah | Um dos pais é Hylian |
-| Pequenino | Kokiri ou Deku (escolha conforme a era) | Povo pequeno ligado à floresta, não envelhece da forma comum |
+| Pequenino | Kokiri ou Deku (escolha conforme o jogo) | Povo pequeno ligado à floresta, não envelhece da forma comum |
 | Sáurio | Povo das Areias Ancestrais | Nômades répteis do deserto — inspirado em civilizações antigas do deserto da franquia |
 | Rakashano | Gerudo | Comunidade guerreira do deserto, tradicionalmente matriarcal |
-| Androide | Autômato Sheikah / Guardião Mecânico | Construtos antigos, mais comuns em eras modernas |
+| Androide | Autômato Sheikah / Guardião Mecânico | Construtos antigos, mais comuns em jogos de era moderna |
 
 Povos adicionais sem raça mecânica direta (trate como Humano/Hylian com
 diretriz de interpretação diferenciada, ou consulte antes de usar): Goron
@@ -49,7 +86,7 @@ diretriz de interpretação diferenciada, ou consulte antes de usar): Goron
 Reino Sombrio, ligado a magia e sombra), Yiga (facção dissidente Sheikah,
 sempre antagonista ou moralmente ambígua, nunca povo neutro).
 
-## Locais recorrentes (use em qualquer era, adaptando o nome se quiser)
+## Locais recorrentes (use em qualquer jogo, adaptando o nome se quiser)
 Castelo de Hyrule (sede do poder), Vila Kakariko (vila de apoio e sabedoria
 antiga), Floresta Perdida/Kokiri (labirinto natural, lar de um povo pequeno),
 Montanha da Morte / região vulcânica (lar Goron), Domínio Zora (região
@@ -61,7 +98,7 @@ central ligado à relíquia da aventura.
   direto de uma oneshot — mais fundo mitológico que item obtível
 - **Espada lendária**: arma que só o herói verdadeiro consegue empunhar
   plenamente; pode ser reimaginada como qualquer arma corpo a corpo icônica
-  na aventora específica
+  na aventura específica
 - **Instrumento musical ou ritual sonoro**: chave narrativa recorrente —
   música como mecanismo de abrir caminhos ou invocar memória
 - **Relíquia fragmentada**: objeto central da aventura dividido em partes,
