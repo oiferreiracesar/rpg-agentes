@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -27,6 +28,11 @@ RANGED_WEAPON_HINTS = (
     "pistola", "revólver", "revolver", "rifle", "espingarda", "arco",
     "besta", "colt", "winchester", "arma de fogo",
 )
+
+RACAS_OFICIAIS = {
+    "Humano", "Elfo", "Meio-Elfo", "Aquariano", "Aviano", "Pequenino",
+    "Rakashano", "Sáurio", "Androide",
+}
 
 
 class Validador:
@@ -62,25 +68,25 @@ def checar_pericia(v, origem, nome_pericia):
         v.aviso(f"{origem}: perícia '{nome_pericia}' não está na lista oficial (pode ser erro de digitação)")
 
 
-def validar_roteirista(v, data):
+def validar_roteirista(v, data, nome_arquivo):
     if data is None:
         return
     for campo in ("metadados", "premissa", "twists", "cenas", "finais"):
         if campo not in data:
-            v.erro(f"01-roteirista.json: campo obrigatório '{campo}' ausente")
+            v.erro(f"{nome_arquivo}: campo obrigatório '{campo}' ausente")
 
     if len(data.get("finais", [])) < 3:
-        v.aviso("01-roteirista.json: menos de 3 finais definidos")
+        v.aviso(f"{nome_arquivo}: menos de 3 finais definidos")
 
     for f in data.get("finais", []):
         if not f.get("texto_leitura"):
-            v.aviso(f"01-roteirista.json: final '{f.get('nome','?')}' sem 'texto_leitura' (o fechamento narrado não vai aparecer no compilado)")
+            v.aviso(f"{nome_arquivo}: final '{f.get('nome','?')}' sem 'texto_leitura' (o fechamento narrado não vai aparecer no compilado)")
 
     numeros_cena = set()
     for c in data.get("cenas", []):
         num = c.get("numero")
         numeros_cena.add(num)
-        origem = f"01-roteirista.json, Cena {num}"
+        origem = f"{nome_arquivo}, Cena {num}"
 
         for d in c.get("dificuldades", []):
             if "acao" not in d:
@@ -90,7 +96,6 @@ def validar_roteirista(v, data):
             mod = d.get("modificador")
             if isinstance(mod, str):
                 v.erro(f"{origem}: 'modificador' veio como texto ('{mod}') em vez de número")
-            # nota: modificador negativo é válido de propósito (penalidade) — não é erro
 
         transicao = c.get("transicao", {})
         gatilhos = transicao.get("gatilhos")
@@ -107,15 +112,19 @@ def validar_roteirista(v, data):
         npc_id = io.get("id")
         for ap in io.get("aparencias_por_cena", []):
             if ap.get("cena") not in numeros_cena:
-                v.aviso(f"01-roteirista.json: identidade oculta de '{npc_id}' referencia cena {ap.get('cena')} que não existe")
+                v.aviso(f"{nome_arquivo}: identidade oculta de '{npc_id}' referencia cena {ap.get('cena')} que não existe")
 
 
-def validar_npcs(v, data):
+def validar_npcs(v, data, nome_arquivo):
     if data is None:
         return
     for npc in data.get("npcs", []):
         nome = npc.get("nome_exibicao", npc.get("id", "?"))
-        origem = f"03-npcs.json, NPC '{nome}'"
+        origem = f"{nome_arquivo}, NPC '{nome}'"
+
+        raca = npc.get("raca")
+        if raca and raca not in RACAS_OFICIAIS:
+            v.aviso(f"{origem}: raça '{raca}' não é uma das 9 raças oficiais")
 
         if npc.get("combatente"):
             atributos = npc.get("atributos", {})
@@ -164,17 +173,17 @@ def validar_npcs(v, data):
                 v.aviso(f"{origem}: não-combatente sem 'papel' nem 'diretriz_interpretacao' — função narrativa não está clara pro mestre")
 
 
-def validar_sonoplastia(v, data, roteirista):
+def validar_sonoplastia(v, data, roteirista, nome_arquivo):
     if data is None or roteirista is None:
         return
     cenas_roteirista = {c["numero"] for c in roteirista.get("cenas", [])}
     cenas_sono = {s["cena"] for s in data.get("sonoplastia", [])}
     faltando = cenas_roteirista - cenas_sono
     if faltando:
-        v.erro(f"05-sonoplastia.json: faltam entradas para as cenas {sorted(faltando)}")
+        v.erro(f"{nome_arquivo}: faltam entradas para as cenas {sorted(faltando)}")
 
 
-def validar_animador(v, data, roteirista):
+def validar_animador(v, data, roteirista, nome_arquivo):
     if data is None or roteirista is None:
         return
     cenas_validas = {c["numero"] for c in roteirista.get("cenas", [])}
@@ -182,46 +191,51 @@ def validar_animador(v, data, roteirista):
     for cs in data.get("cutscenes", []):
         cena_ref = cs.get("cena_ref")
         if cena_ref is not None and cena_ref not in cenas_validas:
-            v.aviso(f"08-animador.json: cutscene '{cs.get('momento','?')}' referencia cena {cena_ref} que não existe")
+            v.aviso(f"{nome_arquivo}: cutscene '{cs.get('momento','?')}' referencia cena {cena_ref} que não existe")
         final_ref = cs.get("final_ref")
         if final_ref and final_ref not in finais_validos:
-            v.aviso(f"08-animador.json: cutscene '{cs.get('momento','?')}' referencia final '{final_ref}' que não existe nos finais do roteirista")
+            v.aviso(f"{nome_arquivo}: cutscene '{cs.get('momento','?')}' referencia final '{final_ref}' que não existe nos finais do roteirista")
 
 
-def validar_improviso(v, data, npcs_data):
+def validar_improviso(v, data, npcs_data, nome_arquivo):
     if data is None or npcs_data is None:
         return
     ids_validos = {n["id"] for n in npcs_data.get("npcs", [])}
     for entry in data.get("banco_de_falas", []):
         npc_id = entry.get("npc_id")
         if npc_id not in ids_validos:
-            v.aviso(f"09-improviso.json: banco de falas referencia npc_id '{npc_id}' que não existe em 03-npcs.json")
+            v.aviso(f"{nome_arquivo}: banco de falas referencia npc_id '{npc_id}' que não existe em 03-npcs.json")
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
+    args = parser.parse_args()
+    p = args.pasta
+
     v = Validador()
 
-    roteirista = carregar_json(v, "output/01-roteirista.json")
-    npcs = carregar_json(v, "output/03-npcs.json")
-    cartografo = carregar_json(v, "output/04-cartografo.json")
-    sonoplastia = carregar_json(v, "output/05-sonoplastia.json")
-    animador = carregar_json(v, "output/08-animador.json")
-    improviso = carregar_json(v, "output/09-improviso.json")
+    roteirista = carregar_json(v, os.path.join(p, "01-roteirista.json"))
+    npcs = carregar_json(v, os.path.join(p, "03-npcs.json"))
+    cartografo = carregar_json(v, os.path.join(p, "04-cartografo.json"))
+    sonoplastia = carregar_json(v, os.path.join(p, "05-sonoplastia.json"))
+    animador = carregar_json(v, os.path.join(p, "08-animador.json"))
+    improviso = carregar_json(v, os.path.join(p, "09-improviso.json"))
 
     if roteirista is not None:
-        validar_roteirista(v, roteirista)
+        validar_roteirista(v, roteirista, os.path.join(p, "01-roteirista.json"))
     if npcs is not None:
-        validar_npcs(v, npcs)
+        validar_npcs(v, npcs, os.path.join(p, "03-npcs.json"))
     if sonoplastia is not None:
-        validar_sonoplastia(v, sonoplastia, roteirista)
+        validar_sonoplastia(v, sonoplastia, roteirista, os.path.join(p, "05-sonoplastia.json"))
     if animador is not None:
-        validar_animador(v, animador, roteirista)
+        validar_animador(v, animador, roteirista, os.path.join(p, "08-animador.json"))
     if improviso is not None:
-        validar_improviso(v, improviso, npcs)
+        validar_improviso(v, improviso, npcs, os.path.join(p, "09-improviso.json"))
     _ = cartografo
 
     print("=" * 60)
-    print("RELATÓRIO DE VALIDAÇÃO")
+    print(f"RELATÓRIO DE VALIDAÇÃO — {p}")
     print("=" * 60)
 
     if v.avisos:
