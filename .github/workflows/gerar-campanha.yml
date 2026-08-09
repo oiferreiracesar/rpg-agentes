@@ -1,0 +1,530 @@
+name: Gerar Campanha de RPG
+
+on:
+  workflow_dispatch:
+    inputs:
+      brief:
+        description: 'Descreva a campanha que você quer'
+        required: true
+        type: string
+      universo:
+        description: 'Universo/franquia da campanha'
+        required: true
+        type: choice
+        default: 'generico'
+        options:
+          - hyrule
+          - final_fantasy
+          - scifi_nintendo
+          - pokemon
+          - digimon
+          - ordem_paranormal
+          - star_wars
+          - naruto
+          - dc
+          - marvel_hq
+          - marvel_cinematico
+          - silent_hill
+          - resident_evil
+          - slasher
+          - generico
+      jogo_referencia:
+        description: 'Jogo/região/tipo específico (deixe "sem_preferencia" se não quiser travar em um)'
+        required: true
+        type: string
+        default: 'sem_preferencia'
+      momento_temporal:
+        description: 'Quando a campanha se passa, em relação ao jogo/mídia escolhido'
+        required: true
+        type: choice
+        default: 'sem_preferencia'
+        options:
+          - antes_dos_eventos
+          - durante_os_eventos
+          - depois_dos_eventos
+          - sem_preferencia
+      modo_campanha_pokemon:
+        description: 'Só relevante se universo = pokemon'
+        required: true
+        type: choice
+        default: 'treinador'
+        options:
+          - treinador
+          - mystery_dungeon
+      numero_de_sessoes:
+        description: 'Quantas sessões a campanha deve ter'
+        required: true
+        type: choice
+        default: '3'
+        options: ['2', '3', '4', '5']
+
+jobs:
+  gerar-campanha:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Prepara pasta de saída
+        run: |
+          mkdir -p output
+          echo "${{ inputs.brief }}" > output/00-brief.txt
+          echo "${{ inputs.universo }}" > output/00-universo.txt
+          echo "${{ inputs.jogo_referencia }}" > output/00-jogo-referencia.txt
+          echo "${{ inputs.momento_temporal }}" > output/00-momento-temporal.txt
+          echo "${{ inputs.modo_campanha_pokemon }}" > output/00-modo-campanha.txt
+          echo "${{ inputs.numero_de_sessoes }}" > output/00-numero-sessoes.txt
+          touch output/00-sessoes-anteriores.txt
+
+      - name: Resolve arquivo de referência de universo (mapeamento central, sem IA)
+        run: |
+          case "${{ inputs.universo }}" in
+            hyrule) echo "referencia-hyrule.md" > output/00-arquivo-referencia.txt ;;
+            final_fantasy) echo "referencia-finalfantasy.md" > output/00-arquivo-referencia.txt ;;
+            scifi_nintendo) echo "referencia-scifi-nintendo.md" > output/00-arquivo-referencia.txt ;;
+            pokemon) echo "referencia-pokemon.md" > output/00-arquivo-referencia.txt ;;
+            digimon) echo "referencia-digimon.md" > output/00-arquivo-referencia.txt ;;
+            ordem_paranormal) echo "referencia-ordemparanormal.md" > output/00-arquivo-referencia.txt ;;
+            star_wars) echo "referencia-starwars.md" > output/00-arquivo-referencia.txt ;;
+            naruto) echo "referencia-naruto.md" > output/00-arquivo-referencia.txt ;;
+            dc) echo "referencia-dc.md" > output/00-arquivo-referencia.txt ;;
+            marvel_hq) echo "referencia-marvel-hq.md" > output/00-arquivo-referencia.txt ;;
+            marvel_cinematico) echo "referencia-marvel-cinematico.md" > output/00-arquivo-referencia.txt ;;
+            silent_hill) echo "referencia-silenthill.md" > output/00-arquivo-referencia.txt ;;
+            resident_evil) echo "referencia-residentevil.md" > output/00-arquivo-referencia.txt ;;
+            slasher) echo "referencia-slasher.md" > output/00-arquivo-referencia.txt ;;
+            *) echo "" > output/00-arquivo-referencia.txt ;;
+          esac
+
+      - name: 0. Arquiteto de Campanha
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo está em output/00-arquivo-referencia.txt — se
+            não estiver vazio, leia também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/00-campanha.md
+            e siga-as rigorosamente.
+            Brief: output/00-brief.txt | Jogo: output/00-jogo-referencia.txt |
+            Momento: output/00-momento-temporal.txt | Sessões: output/00-numero-sessoes.txt
+            Gere o JSON pedido e salve em output/00-campanha.json.
+
+      # ===================== SESSÃO 1 =====================
+      - name: '[S1] Preparar pasta da sessão'
+        run: |
+          mkdir -p output/sessao_1
+          cp output/00-campanha.json output/sessao_1/
+          cp output/00-sessoes-anteriores.txt output/sessao_1/
+          cp output/00-arquivo-referencia.txt output/sessao_1/
+          cp output/00-modo-campanha.txt output/sessao_1/
+          echo "${{ inputs.universo }}" > output/sessao_1/00-universo.txt
+
+      - name: '[S1] 1. Roteirista'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo está em output/sessao_1/00-arquivo-referencia.txt
+            — se não estiver vazio, leia também .github/agents/[esse nome exato].
+            Leia output/sessao_1/00-campanha.json e
+            output/sessao_1/00-sessoes-anteriores.txt — esta é a SESSÃO 1
+            (numero=1 dentro de 00-campanha.json).
+            Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
+            e siga-as rigorosamente.
+            Gere o JSON pedido e salve em output/sessao_1/01-roteirista.json.
+
+      - name: '[S1] 2. Direção de Arte'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_1/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/02-direcao-arte.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json como entrada.
+            Gere o JSON pedido e salve em output/sessao_1/02-direcao-arte.json.
+
+      - name: '[S1] 3. NPCs'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo está em output/sessao_1/00-arquivo-referencia.txt
+            — se não estiver vazio, leia também .github/agents/[esse nome exato].
+            output/sessao_1/00-universo.txt e output/sessao_1/00-modo-campanha.txt
+            informam arquitetura de personagem especial, se houver.
+            Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json e output/sessao_1/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_1/03-npcs.json.
+
+      - name: '[S1] 3b. Corrigir Resistência'
+        run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_1
+
+      - name: '[S1] 4. Cartógrafo'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_1/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato]. Nunca inclua número/modificador
+            em "elementos_especiais".
+            Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json e output/sessao_1/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_1/04-cartografo.json.
+
+      - name: '[S1] 4c. Animador de Cutscenes'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/08-animador.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json, output/sessao_1/03-npcs.json e
+            output/sessao_1/04-cartografo.json.
+            Gere o JSON pedido e salve em output/sessao_1/08-animador.json.
+
+      - name: '[S1] 4d. Tabela de Improviso'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            output/sessao_1/00-universo.txt e output/sessao_1/00-modo-campanha.txt
+            informam tratamento especial de fala, se houver.
+            Leia suas instruções de sistema no arquivo .github/agents/09-improviso.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json e output/sessao_1/03-npcs.json.
+            Gere o JSON pedido e salve em output/sessao_1/09-improviso.json.
+
+      - name: '[S1] 4e. Diretor de Dinâmicas Físicas'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_1/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/10-puzzles.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json e output/sessao_1/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_1/10-puzzles.json.
+
+      - name: '[S1] 4f. Montar e verificar puzzles físicos'
+        run: |
+          python3 .github/scripts/gerar_caca_palavras.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_cifra.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_anagrama.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_sequencia_logica.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_palavras_cruzadas.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_cadeado_numerico.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_sudoku_tematico.py --pasta output/sessao_1
+          python3 .github/scripts/gerar_roleta.py --pasta output/sessao_1
+
+      - name: '[S1] 5. Sonoplastia'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_1/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/05-sonoplastia.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json e output/sessao_1/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_1/05-sonoplastia.json.
+
+      - name: '[S1] 6. Documentos'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/06-documentos.md
+            e siga-as rigorosamente.
+            Leia output/sessao_1/01-roteirista.json, output/sessao_1/02-direcao-arte.json
+            e output/sessao_1/04-cartografo.json.
+            Gere o JSON pedido e salve em output/sessao_1/06-documentos.json.
+
+      - name: '[S1] Validar JSONs'
+        run: python3 .github/scripts/validar_json.py --pasta output/sessao_1
+
+      - name: '[S1] Compilador — gerar markdown'
+        run: python3 .github/scripts/compilador_gerar.py --pasta output/sessao_1
+
+      - name: '[S1] Atualiza resumo de sessões anteriores'
+        run: |
+          echo "--- SESSÃO 1 ---" >> output/00-sessoes-anteriores.txt
+          python3 -c "
+          import json
+          d = json.load(open('output/sessao_1/01-roteirista.json'))
+          print('Título:', d['metadados']['titulo'])
+          print('Resumo:', d['premissa']['gancho_curto'])
+          for f in d.get('finais', []):
+              print('Final possível:', f['nome'])
+          " >> output/00-sessoes-anteriores.txt
+
+      # ===================== SESSÃO 2 =====================
+      - name: '[S2] Verifica se esta sessão é necessária'
+        id: check_s2
+        run: |
+          N=$(cat output/00-numero-sessoes.txt)
+          if [ "$N" -ge "2" ]; then echo "rodar=true" >> $GITHUB_OUTPUT; else echo "rodar=false" >> $GITHUB_OUTPUT; fi
+
+      - name: '[S2] Preparar pasta da sessão'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: |
+          mkdir -p output/sessao_2
+          cp output/00-campanha.json output/sessao_2/
+          cp output/00-sessoes-anteriores.txt output/sessao_2/
+          cp output/00-arquivo-referencia.txt output/sessao_2/
+          cp output/00-modo-campanha.txt output/sessao_2/
+          echo "${{ inputs.universo }}" > output/sessao_2/00-universo.txt
+
+      - name: '[S2] 1. Roteirista'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo está em output/sessao_2/00-arquivo-referencia.txt
+            — se não estiver vazio, leia também .github/agents/[esse nome exato].
+            Leia output/sessao_2/00-campanha.json e
+            output/sessao_2/00-sessoes-anteriores.txt — esta é a SESSÃO 2
+            (numero=2 dentro de 00-campanha.json). Os jogadores JÁ VIVERAM as
+            sessões anteriores — mantenha continuidade real.
+            Leia suas instruções de sistema no arquivo .github/agents/01-roteirista.md
+            e siga-as rigorosamente.
+            Gere o JSON pedido e salve em output/sessao_2/01-roteirista.json.
+
+      - name: '[S2] 2. Direção de Arte'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_2/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/02-direcao-arte.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json como entrada.
+            Gere o JSON pedido e salve em output/sessao_2/02-direcao-arte.json.
+
+      - name: '[S2] 3. NPCs'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia .github/agents/referencia-swade.md sempre. O nome do arquivo de
+            referência de universo está em output/sessao_2/00-arquivo-referencia.txt
+            — se não estiver vazio, leia também .github/agents/[esse nome exato].
+            output/sessao_2/00-universo.txt e output/sessao_2/00-modo-campanha.txt
+            informam arquitetura de personagem especial, se houver.
+            Leia suas instruções de sistema no arquivo .github/agents/03-npcs.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json e output/sessao_2/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_2/03-npcs.json.
+
+      - name: '[S2] 3b. Corrigir Resistência'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_2
+
+      - name: '[S2] 4. Cartógrafo'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_2/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato]. Nunca inclua número/modificador
+            em "elementos_especiais".
+            Leia suas instruções de sistema no arquivo .github/agents/04-cartografo.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json e output/sessao_2/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_2/04-cartografo.json.
+
+      - name: '[S2] 4c. Animador de Cutscenes'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/08-animador.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json, output/sessao_2/03-npcs.json e
+            output/sessao_2/04-cartografo.json.
+            Gere o JSON pedido e salve em output/sessao_2/08-animador.json.
+
+      - name: '[S2] 4d. Tabela de Improviso'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            output/sessao_2/00-universo.txt e output/sessao_2/00-modo-campanha.txt
+            informam tratamento especial de fala, se houver.
+            Leia suas instruções de sistema no arquivo .github/agents/09-improviso.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json e output/sessao_2/03-npcs.json.
+            Gere o JSON pedido e salve em output/sessao_2/09-improviso.json.
+
+      - name: '[S2] 4e. Diretor de Dinâmicas Físicas'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_2/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/10-puzzles.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json e output/sessao_2/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_2/10-puzzles.json.
+
+      - name: '[S2] 4f. Montar e verificar puzzles físicos'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: |
+          python3 .github/scripts/gerar_caca_palavras.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_cifra.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_anagrama.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_sequencia_logica.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_palavras_cruzadas.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_cadeado_numerico.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_sudoku_tematico.py --pasta output/sessao_2
+          python3 .github/scripts/gerar_roleta.py --pasta output/sessao_2
+
+      - name: '[S2] 5. Sonoplastia'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            O nome do arquivo de referência de universo está em
+            output/sessao_2/00-arquivo-referencia.txt — se não estiver vazio, leia
+            também .github/agents/[esse nome exato].
+            Leia suas instruções de sistema no arquivo .github/agents/05-sonoplastia.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json e output/sessao_2/02-direcao-arte.json.
+            Gere o JSON pedido e salve em output/sessao_2/05-sonoplastia.json.
+
+      - name: '[S2] 6. Documentos'
+        if: steps.check_s2.outputs.rodar == 'true'
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: gemini-3.5-flash-lite
+          prompt: |
+            Leia suas instruções de sistema no arquivo .github/agents/06-documentos.md
+            e siga-as rigorosamente.
+            Leia output/sessao_2/01-roteirista.json, output/sessao_2/02-direcao-arte.json
+            e output/sessao_2/04-cartografo.json.
+            Gere o JSON pedido e salve em output/sessao_2/06-documentos.json.
+
+      - name: '[S2] Validar JSONs'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: python3 .github/scripts/validar_json.py --pasta output/sessao_2
+
+      - name: '[S2] Compilador — gerar markdown'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: python3 .github/scripts/compilador_gerar.py --pasta output/sessao_2
+
+      - name: '[S2] Atualiza resumo de sessões anteriores'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: |
+          echo "--- SESSÃO 2 ---" >> output/00-sessoes-anteriores.txt
+          python3 -c "
+          import json
+          d = json.load(open('output/sessao_2/01-roteirista.json'))
+          print('Título:', d['metadados']['titulo'])
+          print('Resumo:', d['premissa']['gancho_curto'])
+          for f in d.get('finais', []):
+              print('Final possível:', f['nome'])
+          " >> output/00-sessoes-anteriores.txt
+
+      # ===================== SESSÕES 3, 4 e 5 =====================
+      # Copie o bloco INTEIRO da SESSÃO 2 (do comentário até "Atualiza resumo")
+      # mais duas vezes, e troque, em cada cópia:
+      #   - "sessao_2" -> "sessao_3" (ou 4, ou 5)
+      #   - "check_s2" -> "check_s3" (ou 4, ou 5)
+      #   - "[S2]" -> "[S3]" (ou 4, ou 5) nos nomes dos passos
+      #   - "SESSÃO 2" -> "SESSÃO 3" (ou 4, ou 5) nos textos dos prompts
+      #   - "-ge \"2\"" -> "-ge \"3\"" (ou 4, ou 5) na condição do check
+
+      - name: Gerar índice da campanha
+        run: python3 .github/scripts/gerar_indice_campanha.py
+
+      - name: Disponibiliza tudo pra download
+        uses: actions/upload-artifact@v4
+        with:
+          name: campanha-gerada
+          path: output/
+          retention-days: 30
