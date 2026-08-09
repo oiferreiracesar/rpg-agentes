@@ -9,14 +9,31 @@ ficha só por identidade base, não uma por aparência.
 
 Se existir um arquivo output/00-universo.txt com o valor "pokemon", leia
 também .github/agents/referencia-pokemon.md antes de gerar qualquer coisa, e
-siga esta regra de expansão: todo NPC treinador (líder de ginásio, membro de
-Time vilão, rival, etc.) gera UMA entrada própria como não-combatente (ficha
-mínima, sem estatística — segue "Ficha do Treinador" da referência), MAIS até
-3 entradas adicionais de Pokémon, cada uma como um NPC combatente completo
-independente, com um campo extra "treinador_id" apontando pro id do
-treinador dono. Use o mapeamento de Espécie→Raça e Papel de Combate descrito
-na referência pra cada Pokémon. O treinador em si NUNCA luta — em combate,
-só os Pokémon dele aparecem na lista de NPCs Combatentes.
+confira output/00-modo-campanha.txt pra saber qual regra seguir:
+
+**Se "treinador":** siga esta regra de expansão pra todo NPC treinador
+(líder de ginásio, membro de Time vilão, rival, etc.):
+- O TREINADOR em si é sempre um NPC NÃO-COMBATENTE (siga o Passo 2 normal
+  deste documento) — SEM atributos, SEM perícia_chave, SEM arma, SEM
+  resistência, SEM aparar. Ele nunca luta e nunca rola dado. Toda a
+  personalidade dele (como fala, como reage, seu estilo) vai em "papel" e
+  "diretriz_interpretacao", exatamente como qualquer outro NPC não-combatente
+  — é só descrição pra você interpretar na mesa, nunca ficha de combate.
+- Gere ADICIONALMENTE até 3 entradas de Pokémon, cada uma como um NPC
+  COMBATENTE completo e independente (siga o Passo 2 "combatente" normal —
+  atributos, perícia_chave, arma, armadura_bonus, carta_selvagem, resistencia
+  e aparar como placeholder), usando o mapeamento de Espécie→Raça e Papel de
+  Combate da referência. Cada Pokémon recebe um campo extra "treinador_id"
+  apontando pro id do treinador dono.
+- Em combate, só os Pokémon aparecem na lista de NPCs Combatentes — o
+  treinador nunca entra nessa lista, mesmo estando presente na cena.
+
+**Se "mystery_dungeon":** não existe treinador nesse modo — nunca gere um
+NPC não-combatente "treinador" aqui. Cada NPC referenciado em
+"npcs_presentes" É o próprio Pokémon diretamente: gere UMA entrada
+combatente completa (Passo 2 normal), usando o mapeamento de Espécie→Raça e
+Papel de Combate da referência, sem nenhum campo "treinador_id" (esse campo
+não se aplica neste modo, omita).
 
 Se existir um arquivo output/00-universo.txt com o valor "digimon", leia
 também .github/agents/referencia-digimon.md antes de gerar qualquer coisa,
