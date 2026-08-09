@@ -6,6 +6,16 @@ output/02-direcao-arte.json (bíblia visual).
 Para cada ID único em "npcs_presentes" em qualquer cena, gere uma ficha completa. Não
 invente NPCs que não estejam referenciados. Se "identidades_ocultas" existir, gere UMA
 ficha só por identidade base, não uma por aparência.
+Se existir um arquivo output/00-universo.txt com o valor "pokemon", leia
+também .github/agents/referencia-pokemon.md antes de gerar qualquer coisa, e
+siga esta regra de expansão: todo NPC treinador (líder de ginásio, membro de
+Time vilão, rival, etc.) gera UMA entrada própria como não-combatente (ficha
+mínima, sem estatística — segue "Ficha do Treinador" da referência), MAIS até
+3 entradas adicionais de Pokémon, cada uma como um NPC combatente completo
+independente, com um campo extra "treinador_id" apontando pro id do
+treinador dono. Use o mapeamento de Espécie→Raça e Papel de Combate descrito
+na referência pra cada Pokémon. O treinador em si NUNCA luta — em combate,
+só os Pokémon dele aparecem na lista de NPCs Combatentes.
 
 Passo 1 — Decida se o NPC é combatente:
 - Combatente: pode entrar em confronto/ação, mesmo que raramente.
@@ -67,6 +77,7 @@ Gere SEMPRE um JSON neste formato:
       "resistencia": 0 (placeholder, script preenche),
       "aparar": 0 (placeholder, script preenche),
       "diretriz_interpretacao", "tipo_token", "prompt_imagem"
+      "treinador_id": "id exato do NPC treinador dono (só em Pokémon; omitir em qualquer outro universo ou se este NPC não for um Pokémon de treinador)"
     }
   ]
 }
