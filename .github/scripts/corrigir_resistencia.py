@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -7,9 +8,13 @@ TABELA_APARAR_BASE = {"d4": 2, "d6": 3, "d8": 4, "d10": 5, "d12": 6}
 
 
 def main():
-    path = "output/03-npcs.json"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
+    args = parser.parse_args()
+
+    path = os.path.join(args.pasta, "03-npcs.json")
     if not os.path.exists(path):
-        print("ERRO: output/03-npcs.json não encontrado.", file=sys.stderr)
+        print(f"ERRO: {path} não encontrado.", file=sys.stderr)
         sys.exit(1)
 
     with open(path, encoding="utf-8") as f:
@@ -22,7 +27,6 @@ def main():
         if not npc.get("combatente"):
             continue
 
-        # --- Resistência = 2 + metade do dado de Vigor + armadura + modificador racial ---
         vigor = npc.get("atributos", {}).get("vigor")
         base = TABELA_RESISTENCIA.get(vigor)
         if base is None:
@@ -35,7 +39,6 @@ def main():
                 npc["resistencia"] = nova_resistencia
                 corrigidos_resistencia += 1
 
-        # --- Aparar = 2 + metade do dado de Lutar (2 se não tiver Lutar treinado) ---
         pericia_chave = npc.get("pericia_chave", {})
         if pericia_chave.get("nome") == "Lutar":
             lutar_dado = pericia_chave.get("dado")
@@ -55,8 +58,8 @@ def main():
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    print(f"Resistência recalculada em {corrigidos_resistencia} NPC(s) combatente(s).")
-    print(f"Aparar calculado em {corrigidos_aparar} NPC(s) combatente(s).")
+    print(f"[{args.pasta}] Resistência recalculada em {corrigidos_resistencia} NPC(s) combatente(s).")
+    print(f"[{args.pasta}] Aparar calculado em {corrigidos_aparar} NPC(s) combatente(s).")
 
 
 if __name__ == "__main__":
