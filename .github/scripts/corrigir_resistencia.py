@@ -22,14 +22,15 @@ def main():
         if not npc.get("combatente"):
             continue
 
-        # --- Resistência = 2 + metade do dado de Vigor + armadura ---
+        # --- Resistência = 2 + metade do dado de Vigor + armadura + modificador racial ---
         vigor = npc.get("atributos", {}).get("vigor")
         base = TABELA_RESISTENCIA.get(vigor)
         if base is None:
             print(f"AVISO: NPC '{npc.get('nome_exibicao')}' tem Vigor inválido ('{vigor}'), Resistência não recalculada.", file=sys.stderr)
         else:
             armadura = npc.get("armadura_bonus", 0) or 0
-            nova_resistencia = base + armadura
+            modificador_racial = npc.get("modificador_racial_resistencia", 0) or 0
+            nova_resistencia = base + armadura + modificador_racial
             if npc.get("resistencia") != nova_resistencia:
                 npc["resistencia"] = nova_resistencia
                 corrigidos_resistencia += 1
