@@ -6,6 +6,7 @@ output/02-direcao-arte.json (bíblia visual).
 Para cada ID único em "npcs_presentes" em qualquer cena, gere uma ficha completa. Não
 invente NPCs que não estejam referenciados. Se "identidades_ocultas" existir, gere UMA
 ficha só por identidade base, não uma por aparência.
+
 Se existir um arquivo output/00-universo.txt com o valor "pokemon", leia
 também .github/agents/referencia-pokemon.md antes de gerar qualquer coisa, e
 siga esta regra de expansão: todo NPC treinador (líder de ginásio, membro de
@@ -16,6 +17,27 @@ independente, com um campo extra "treinador_id" apontando pro id do
 treinador dono. Use o mapeamento de Espécie→Raça e Papel de Combate descrito
 na referência pra cada Pokémon. O treinador em si NUNCA luta — em combate,
 só os Pokémon dele aparecem na lista de NPCs Combatentes.
+
+Se existir um arquivo output/00-universo.txt com o valor "digimon", leia
+também .github/agents/referencia-digimon.md antes de gerar qualquer coisa,
+e siga esta regra de expansão pra todo NPC Tamer (líder rival, membro de
+organização antagonista, etc.):
+
+- O TAMER em si é sempre um NPC NÃO-COMBATENTE (siga o Passo 2 normal deste
+  documento) — SEM atributos, SEM perícia_chave, SEM arma, SEM resistência,
+  SEM aparar. Toda a personalidade dele vai em "papel" e
+  "diretriz_interpretacao", exatamente como qualquer outro NPC não-combatente.
+- Gere ADICIONALMENTE **exatamente 1** entrada de parceiro Digimon (nunca 3,
+  diferente de Pokémon) como NPC COMBATENTE completo (Passo 2 "combatente"
+  normal), usando o mapeamento de Forma Física→Raça da referência. O
+  parceiro recebe um campo extra "tamer_id" apontando pro id do Tamer dono.
+- Se a cena pedir o momento de Digivolução (ver referência), gere UMA
+  segunda entrada de NPC pra essa forma evoluída, com o mesmo "tamer_id",
+  campo extra "forma": "digivoluida", e os Atributos/dano recalculados
+  conforme a regra de +2 Atributos e +1 dado de dano da referência. A forma
+  padrão recebe "forma": "estavel".
+- Em combate, só os Digimons (nunca o Tamer) aparecem na lista de NPCs
+  Combatentes.
 
 Passo 0 — Determine a "raca" de cada NPC. Padrão é "Humano", a menos que
 exista um documento de referência de universo (lido antes desta instrução)
@@ -101,6 +123,8 @@ Gere SEMPRE um JSON neste formato:
       "aparar": 0 (placeholder, script preenche),
       "diretriz_interpretacao", "tipo_token", "prompt_imagem",
       "treinador_id": "id exato do NPC treinador dono (só em Pokémon; omitir em qualquer outro universo ou se este NPC não for um Pokémon de treinador)"
+      "tamer_id": "id exato do NPC Tamer dono (só em Digimon; omitir em qualquer outro universo)",
+"forma": "estavel | digivoluida (só em Digimon; omitir em qualquer outro universo)"
     }
   ]
 }
