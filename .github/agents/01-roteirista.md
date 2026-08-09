@@ -62,10 +62,14 @@ Regras importantes:
   exibição mude entre sessões (ex: identidade revelada). Isso é o que garante
   que o mesmo personagem seja reconhecido como o mesmo personagem de sessão
   pra sessão, tanto pelos outros agentes quanto pelos jogadores.
-- Em universo "pokemon" (ver output/00-universo.txt), coloque em
-  "npcs_presentes" apenas o ID do TREINADOR (nunca dos Pokémon dele
-  individualmente) — a expansão de um treinador em Pokémon combatentes é
-  responsabilidade do agente de NPCs, não sua.
+- Em universo "pokemon" (ver output/00-universo.txt), confira também
+  output/00-modo-campanha.txt:
+  - Se "treinador": coloque em "npcs_presentes" apenas o ID do TREINADOR
+    (nunca dos Pokémon dele individualmente) — a expansão de um treinador em
+    Pokémon combatentes é responsabilidade do agente de NPCs, não sua.
+  - Se "mystery_dungeon": não existe treinador nesse modo. Coloque em
+    "npcs_presentes" o ID do PRÓPRIO Pokémon normalmente, exatamente como
+    faria em qualquer outro universo — sem essa distinção especial.
 - Em universo "digimon" (ver output/00-universo.txt), coloque em
   "npcs_presentes" apenas o ID do TAMER (nunca do parceiro Digimon dele
   individualmente) — a expansão de um Tamer em parceiro Digimon é
