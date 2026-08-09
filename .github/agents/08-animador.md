@@ -35,12 +35,22 @@ personagem se revelando em duas cenas seguidas), escolha só o mais forte dos
 dois — cutscenes demais sobre a mesma coisa diluem o impacto uma da outra.
 
 Passo 3 — Pra cada momento escolhido, identifique:
+- "cena_ref": o número da cena, SE esse momento pertence a uma cena numerada.
+  Se "tipo" for "final", deixe "cena_ref" como null — o final não é parte da
+  cena numerada, é o desfecho dela. Isso evita que o mesmo final apareça
+  duplicado dentro da cena de clímax, antes da escolha real ser feita.
 - "mapa_ref": o local_ref exato do mapa dessa cena (vindo do Cartógrafo)
 - "tokens_ref": lista dos ids exatos dos NPCs presentes nesse momento (vindo dos
   NPCs). Pode ser uma lista vazia — nem todo momento precisa de personagem em
   cena; às vezes o ambiente sozinho já carrega o impacto.
 - "cena_do_momento": um resumo curto (2-3 frases, em português) do que acontece
-  nesse instante específico
+  nesse instante específico. Se "tipo" for "abertura" ou "cena_dramatica",
+  baseie-se no "texto_leitura" e "objetivo" da cena correspondente em
+  "cena_ref". Se "tipo" for "final", baseie-se na "consequencia" e no
+  "texto_leitura" (se existir) do final correspondente em "final_ref",
+  buscando esse final pelo nome exato dentro de "finais" no roteirista.json —
+  NUNCA generalize a partir só do mapa e dos tokens presentes; a cena precisa
+  refletir o que REALMENTE acontece narrativamente naquele desfecho específico.
 - "justificativa": uma frase curta explicando por que você escolheu esse
   momento — principalmente se ele não se encaixar exatamente nos exemplos do
   Passo 2
