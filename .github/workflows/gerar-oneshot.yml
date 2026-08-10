@@ -154,6 +154,12 @@ jobs:
       - name: 3b. Corrigir Resistência (fórmula, sem IA)
         run: python3 .github/scripts/corrigir_resistencia.py
 
+      - name: 3c. Corrigir Raça de Pokémon (algoritmo, sem IA)
+        run: python3 .github/scripts/corrigir_raca_pokemon.py
+
+      - name: 3d. Recalcular Resistência (raça pode ter mudado o modificador)
+        run: python3 .github/scripts/corrigir_resistencia.py
+
       - name: 4. Cartógrafo
         uses: google-github-actions/run-gemini-cli@v0
         env:
