@@ -61,6 +61,13 @@ organização antagonista, etc.):
   padrão recebe "forma": "estavel".
 - Em combate, só os Digimons (nunca o Tamer) aparecem na lista de NPCs
   Combatentes.
+- Se o ID em "npcs_presentes" referenciar um Digimon diretamente (sem Tamer
+associado — caso de companheiro do próprio grupo ou Digimon selvagem/
+hostil), gere ele como um NPC combatente comum (Passo 2 normal), usando o
+mapeamento Forma Física→Raça da referência — e OMITA completamente o campo
+"tamer_id" (nunca invente um valor pra ele). Só use "tamer_id" quando
+houver, de fato, uma entrada de Tamer NPC não-combatente correspondente
+gerada por você mesmo neste arquivo.
 
 Passo 0 — Determine a "raca" de cada NPC. Padrão é "Humano", a menos que
 exista um documento de referência de universo (lido antes desta instrução)
