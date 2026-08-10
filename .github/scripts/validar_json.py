@@ -82,19 +82,25 @@ def validar_npcs_presentes_existem(v, roteirista, npcs_data, nome_roteirista, no
                 )
 
 
-def validar_racas_pokemon(v, npcs_data, nome_arquivo):
-    """Todo Pokémon (identificado por ter 'treinador_id') precisa usar uma
-    das 7 raças que o referencia-pokemon.md mapeia — nunca 'Humano', que é
-    reservado pro treinador/Tamer em si."""
+def validar_racas_pokemon(v, npcs_data, nome_arquivo, universo=None):
+    """Todo Pokémon precisa usar uma das 7 raças que o referencia-pokemon.md
+    mapeia — nunca 'Humano', que é reservado pro treinador/Tamer em si.
+    Verifica dois casos: (1) qualquer NPC com 'treinador_id' (claramente um
+    Pokémon de alguém), e (2) em universo "pokemon", QUALQUER NPC combatente
+    com raça Humano — mesmo sem treinador_id, já que Pokémon selvagens sem
+    dono também não deveriam ser 'Humano' (esse caso passava batido antes)."""
     if npcs_data is None:
         return
-    racas_validas_pokemon = {"Aviano", "Aquariano", "Pequenino", "Sáurio", "Elfo", "Androide", "Rakashano"}
     for npc in npcs_data.get("npcs", []):
-        if npc.get("treinador_id") and npc.get("raca") == "Humano":
+        eh_pokemon_com_dono = bool(npc.get("treinador_id"))
+        eh_combatente_suspeito = universo == "pokemon" and npc.get("combatente") and npc.get("raca") == "Humano"
+
+        if npc.get("raca") == "Humano" and (eh_pokemon_com_dono or eh_combatente_suspeito):
+            motivo = "tem 'treinador_id'" if eh_pokemon_com_dono else "é combatente num universo Pokémon (raro um humano lutar diretamente)"
             v.aviso(
-                f"{nome_arquivo}, NPC '{npc.get('nome_exibicao')}': é um Pokémon "
-                f"(tem 'treinador_id') mas a raça está como 'Humano' — Pokémon "
-                f"nunca deveria usar essa raça, confira o mapeamento Espécie→Raça"
+                f"{nome_arquivo}, NPC '{npc.get('nome_exibicao')}': {motivo} mas a "
+                f"raça está como 'Humano' — confira se não deveria ser um Pokémon "
+                f"com outra raça (Aviano/Aquariano/Pequenino/Sáurio/Elfo/Androide/Rakashano)"
             )
 
 
@@ -294,6 +300,12 @@ def main():
 
     v = Validador()
 
+    universo_path = caminho("00-universo.txt")
+    universo = None
+    if os.path.exists(universo_path):
+        with open(universo_path, encoding="utf-8") as f:
+            universo = f.read().strip()
+
     roteirista = carregar_json(v, caminho("01-roteirista.json"))
     npcs = carregar_json(v, caminho("03-npcs.json"))
     cartografo = carregar_json(v, caminho("04-cartografo.json"))
@@ -306,7 +318,7 @@ def main():
         validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
     if npcs is not None:
         validar_npcs(v, npcs, caminho("03-npcs.json"))
-        validar_racas_pokemon(v, npcs, caminho("03-npcs.json"))
+        validar_racas_pokemon(v, npcs, caminho("03-npcs.json"), universo)
     if roteirista is not None and npcs is not None:
         validar_npcs_presentes_existem(v, roteirista, npcs, caminho("01-roteirista.json"), caminho("03-npcs.json"))
     if roteirista is not None and cartografo is not None:
