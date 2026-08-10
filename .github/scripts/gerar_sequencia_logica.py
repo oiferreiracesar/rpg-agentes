@@ -2,9 +2,41 @@ import argparse
 import json
 import os
 import random
+import re
 import sys
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+
+
+def buscar_campo_lista(dados, contem):
+    for chave, valor in dados.items():
+        if not isinstance(valor, list):
+            continue
+        chave_norm = normalize(chave).lower().replace("_", "")
+        if any(normalize(c).lower().replace("_", "") in chave_norm for c in contem):
+            return valor
+    return None
+
+
+def buscar_campo_texto_simples(dados, contem):
+    for chave, valor in dados.items():
+        if not isinstance(valor, str):
+            continue
+        chave_norm = normalize(chave).lower().replace("_", "")
+        if any(normalize(c).lower().replace("_", "") in chave_norm for c in contem):
+            return valor
+    return ""
+
+
+def limpar_numeracao(item):
+    """Se a IA já escreveu o item com número na frente ('1. Faça X'), tira
+    esse número — senão a resposta fica visível de graça no próprio texto,
+    o que anula o puzzle. Também converte item numérico puro (ex: 1, 2, 3)
+    em string, caso a IA tenha mandado só os índices em vez do texto."""
+    if isinstance(item, (int, float)):
+        return str(item)
+    texto = str(item)
+    return re.sub(r"^\s*\d+[\.\):\-]?\s*", "", texto).strip()
 
 
 def normalize(text):
@@ -111,16 +143,44 @@ def main():
 
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
-        elementos = dados.get("elementos", [])
-        # "ordem_correta" é o nome oficial, mas a IA já usou "sequencia_correta"
-        # na prática — aceita os dois.
-        ordem_correta = dados.get("ordem_correta") or dados.get("sequencia_correta") or []
-        pista = dados.get("pista_in_fiction", "")
+        elementos_brutos = (
+            dados.get("elementos")
+            or buscar_campo_lista(dados, contem=["elementos", "passos", "etapas", "itens", "cartas"])
+            or []
+        )
+        ordem_brutos = (
+            dados.get("ordem_correta")
+            or dados.get("sequencia_correta")
+            or buscar_campo_lista(dados, contem=["ordem", "sequencia"])
+            or []
+        )
+        pista = dados.get("pista_in_fiction", "") or buscar_campo_texto_simples(dados, ["pista", "dica"])
         titulo = d.get("titulo", "Sequência Lógica")
 
-        if not elementos or not ordem_correta:
-            print(f"AVISO: '{titulo}' sem 'elementos' ou 'ordem_correta'/'sequencia_correta', pulando.", file=sys.stderr)
+        if not elementos_brutos or not ordem_brutos:
+            print(f"AVISO: '{titulo}' sem elementos ou ordem correta reconhecíveis, pulando.", file=sys.stderr)
             continue
+
+        # Limpa numeração visível de cada item (ex: "1. Faça X" -> "Faça X"),
+        # senão a resposta vaza no próprio texto do item.
+        elementos = [limpar_numeracao(e) for e in elementos_brutos]
+
+        # A IA pode mandar "ordem_correta" como os mesmos textos reordenados
+        # (formato oficial), OU como uma lista de números indicando a posição
+        # de cada elemento (ex: [1,2,3,4]) — detecta qual é o caso e resolve
+        # pro formato de texto de qualquer jeito.
+        if all(isinstance(x, (int, float)) for x in ordem_brutos):
+            try:
+                # tenta 1-based primeiro (mais comum em enumeração humana)
+                ordem_correta = [elementos[int(idx) - 1] for idx in ordem_brutos]
+            except (IndexError, ValueError):
+                try:
+                    ordem_correta = [elementos[int(idx)] for idx in ordem_brutos]
+                except (IndexError, ValueError):
+                    print(f"ERRO: '{titulo}' — 'ordem_correta' tem índices que não batem com a quantidade de elementos. Pulando.", file=sys.stderr)
+                    continue
+        else:
+            ordem_correta = [limpar_numeracao(x) for x in ordem_brutos]
 
         ok, motivo = verificar(elementos, ordem_correta)
         if not ok:
