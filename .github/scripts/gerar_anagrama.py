@@ -85,12 +85,21 @@ def main():
 
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
-        palavra = dados.get("palavra_original", "")
+        # Aceita variações de nome que a IA já usou na prática, além do nome
+        # oficial — sempre re-embaralhamos nós mesmos (nunca confiamos no
+        # embaralhamento pronto que a IA possa ter mandado), pra garantir
+        # que a verificação de "é genuinamente diferente" seja real.
+        palavra = (
+            dados.get("palavra_original")
+            or dados.get("palavra_alvo")
+            or dados.get("palavra")
+            or ""
+        )
         dica = dados.get("dica", "")
         titulo = d.get("titulo", "Anagrama")
 
         if not palavra:
-            print(f"AVISO: '{titulo}' sem 'palavra_original', pulando.", file=sys.stderr)
+            print(f"AVISO: '{titulo}' sem 'palavra_original' (nem 'palavra_alvo'), pulando.", file=sys.stderr)
             continue
 
         palavra_norm = normalize(palavra).replace(" ", "")
