@@ -68,6 +68,36 @@ def checar_pericia(v, origem, nome_pericia):
         v.aviso(f"{origem}: perícia '{nome_pericia}' não está na lista oficial (pode ser erro de digitação)")
 
 
+def validar_npcs_presentes_existem(v, roteirista, npcs_data, nome_roteirista, nome_npcs):
+    if roteirista is None or npcs_data is None:
+        return
+    ids_existentes = {n["id"] for n in npcs_data.get("npcs", []) if "id" in n}
+    for c in roteirista.get("cenas", []):
+        for npc_id in c.get("npcs_presentes", []):
+            if npc_id not in ids_existentes:
+                v.erro(
+                    f"{nome_roteirista}, Cena {c.get('numero')}: 'npcs_presentes' "
+                    f"referencia '{npc_id}', que não existe em {nome_npcs} — "
+                    f"o mestre não vai ter ficha nenhuma pra esse NPC"
+                )
+
+
+def validar_racas_pokemon(v, npcs_data, nome_arquivo):
+    """Todo Pokémon (identificado por ter 'treinador_id') precisa usar uma
+    das 7 raças que o referencia-pokemon.md mapeia — nunca 'Humano', que é
+    reservado pro treinador/Tamer em si."""
+    if npcs_data is None:
+        return
+    racas_validas_pokemon = {"Aviano", "Aquariano", "Pequenino", "Sáurio", "Elfo", "Androide", "Rakashano"}
+    for npc in npcs_data.get("npcs", []):
+        if npc.get("treinador_id") and npc.get("raca") == "Humano":
+            v.aviso(
+                f"{nome_arquivo}, NPC '{npc.get('nome_exibicao')}': é um Pokémon "
+                f"(tem 'treinador_id') mas a raça está como 'Humano' — Pokémon "
+                f"nunca deveria usar essa raça, confira o mapeamento Espécie→Raça"
+            )
+
+
 def validar_roteirista(v, data, nome_arquivo):
     if data is None:
         return
@@ -276,6 +306,9 @@ def main():
         validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
     if npcs is not None:
         validar_npcs(v, npcs, caminho("03-npcs.json"))
+        validar_racas_pokemon(v, npcs, caminho("03-npcs.json"))
+    if roteirista is not None and npcs is not None:
+        validar_npcs_presentes_existem(v, roteirista, npcs, caminho("01-roteirista.json"), caminho("03-npcs.json"))
     if roteirista is not None and cartografo is not None:
         validar_mapas_referenciados(v, roteirista, cartografo, caminho("01-roteirista.json"), caminho("04-cartografo.json"))
     if roteirista is not None and documentos is not None:
