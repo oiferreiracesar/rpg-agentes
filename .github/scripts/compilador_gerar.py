@@ -398,9 +398,11 @@ def main():
                 )
                 md.append("")
                 md.append(
-                    "> Se os links acima não abrirem, o script correspondente "
-                    "(`gerar_*.py`) ainda não rodou pra este puzzle — confira o "
-                    "log do pipeline."
+                    "> Se algum link acima não abrir: ou o script ainda não rodou "
+                    "nessa pasta, ou ele detectou algo inconsistente nos dados "
+                    "gerados e pulou este puzzle de propósito (nunca falha "
+                    "silenciosamente) — confira o log do pipeline pra saber qual "
+                    "dos dois foi."
                 )
             elif categoria == "precisa_geracao_externa":
                 md.append(
@@ -414,20 +416,6 @@ def main():
                 md.append("🎭 **Dinâmica física/social** — não precisa de nenhum material impresso.")
                 md.append("")
                 render_dados_puzzle_generico(md, dados)
-            elif categoria == "decisao_tensao":
-                slug = slugify_puzzle(titulo)
-                md.append(
-                    "🎡 **Decisão por sorte, pra momento grande** — use só em "
-                    "escolhas narrativas importantes, nunca em teste comum."
-                )
-                md.append("")
-                md.append(f"📄 [Roleta pronta pra imprimir e recortar](puzzles/{slug}_ROLETA.pdf)")
-                md.append("")
-                md.append(
-                    "> Alternativa digital: sites gratuitos como wheeldecide.com "
-                    "ou pickerwheel.com fazem a mesma coisa na tela, se preferir "
-                    "não imprimir."
-                )
             else:
                 md.append("📋 **Pronto pra usar direto** — sem necessidade de PDF.")
                 md.append("")
