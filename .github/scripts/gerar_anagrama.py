@@ -7,6 +7,24 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 
+def buscar_campo_texto(dados, contem, excluir=()):
+    """Procura em 'dados' uma chave cujo nome contenha qualquer uma das
+    palavras em 'contem' (ignora maiúsculas/acentos/underscore), e cujo
+    valor seja texto. Ignora chaves que contenham qualquer palavra de
+    'excluir'. Usado porque a IA varia o nome exato dos campos a cada
+    geração — em vez de listar sinônimos que sempre ficam um passo atrás,
+    procuramos pelo PADRÃO do nome."""
+    for chave, valor in dados.items():
+        if not isinstance(valor, str):
+            continue
+        chave_norm = normalize(chave).lower().replace("_", "")
+        if any(normalize(e).lower().replace("_", "") in chave_norm for e in excluir):
+            continue
+        if any(normalize(c).lower().replace("_", "") in chave_norm for c in contem):
+            return valor
+    return None
+
+
 def normalize(text):
     repl = str.maketrans("ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ", "AAAAAEEEEIIIIOOOOOUUUUC")
     return text.upper().translate(repl)
@@ -85,17 +103,16 @@ def main():
 
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
-        # Aceita variações de nome que a IA já usou na prática, além do nome
-        # oficial — sempre re-embaralhamos nós mesmos (nunca confiamos no
-        # embaralhamento pronto que a IA possa ter mandado), pra garantir
-        # que a verificação de "é genuinamente diferente" seja real.
-        palavra = (
-            dados.get("palavra_original")
-            or dados.get("palavra_alvo")
-            or dados.get("palavra")
-            or ""
-        )
-        dica = dados.get("dica", "")
+        # Busca por padrão: qualquer campo que fale de "resposta/alvo/original"
+        # é a palavra certa; qualquer campo com "embaralh" é a versão já
+        # bagunçada da IA, que NUNCA usamos (sempre embaralhamos nós mesmos,
+        # pra garantir que a verificação de "é diferente" seja real).
+        palavra = buscar_campo_texto(
+            dados,
+            contem=["alvo", "correta", "original", "resposta", "solucao"],
+            excluir=["embaralh", "misturad", "desordenad"],
+        ) or ""
+        dica = dados.get("dica", "") or buscar_campo_texto(dados, contem=["dica", "pista"]) or ""
         titulo = d.get("titulo", "Anagrama")
 
         if not palavra:
