@@ -290,6 +290,7 @@ jobs:
         run: python3 .github/scripts/publicar_notion.py
 
       - name: Disponibiliza os JSONs e PDFs gerados para download
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: oneshot-gerada
