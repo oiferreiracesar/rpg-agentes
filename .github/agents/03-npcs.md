@@ -27,6 +27,12 @@ confira output/00-modo-campanha.txt pra saber qual regra seguir:
   apontando pro id do treinador dono.
 - Em combate, só os Pokémon aparecem na lista de NPCs Combatentes — o
   treinador nunca entra nessa lista, mesmo estando presente na cena.
+- Ao mapear a Espécie→Raça de cada Pokémon (tabela do referencia-pokemon.md),
+  NUNCA use "Humano" — essa raça é reservada exclusivamente pro treinador em
+  si. Se a forma física do Pokémon não se encaixar claramente em nenhuma das
+  7 linhas da tabela (Aviano, Aquariano, Pequenino, Sáurio, Elfo, Androide,
+  Rakashano), escolha a mais próxima pela silhueta geral mesmo assim — nunca
+  deixe a raça de um Pokémon como "Humano" ou fora dessas 7 opções.
 
 **Se "mystery_dungeon":** não existe treinador nesse modo — nunca gere um
 NPC não-combatente "treinador" aqui. Cada NPC referenciado em
