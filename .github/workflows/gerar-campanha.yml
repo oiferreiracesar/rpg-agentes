@@ -725,6 +725,7 @@ jobs:
         run: python3 .github/scripts/gerar_indice_campanha.py
 
       - name: Disponibiliza tudo pra download
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: campanha-gerada
