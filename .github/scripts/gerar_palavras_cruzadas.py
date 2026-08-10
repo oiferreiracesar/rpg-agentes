@@ -207,14 +207,26 @@ def main():
 
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
-        pares_raw = dados.get("pares", [])
+        pares_raw = dados.get("pares") or dados.get("palavras") or dados.get("termos") or []
         titulo = d.get("titulo", "Palavras Cruzadas")
 
         if len(pares_raw) < 2:
             print(f"AVISO: '{titulo}' tem menos de 2 palavras, pulando.", file=sys.stderr)
             continue
 
-        pares = [{"palavra": normalize(par["palavra"]), "dica": par.get("dica", "")} for par in pares_raw]
+        def extrair_palavra(item):
+            for chave in ("palavra", "termo", "resposta", "texto"):
+                if chave in item and isinstance(item[chave], str):
+                    return item[chave]
+            return ""
+
+        def extrair_dica(item):
+            for chave in ("dica", "pista", "descricao"):
+                if chave in item and isinstance(item[chave], str):
+                    return item[chave]
+            return ""
+
+        pares = [{"palavra": normalize(extrair_palavra(par)), "dica": extrair_dica(par)} for par in pares_raw]
         pares = [par for par in pares if len(par["palavra"]) >= 2]
 
         grade, nao_encaixadas = montar_cruzadinha(pares, seed=i + 7)
