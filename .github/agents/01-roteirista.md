@@ -41,6 +41,12 @@ Regras importantes:
   crie um ID novo só porque o nome/aparência mudou. Documente isso em "identidades_ocultas".
 - Se duas cenas acontecem no mesmo local físico, use o MESMO "local_ref" nas duas.
 - O campo em "dificuldades" chama-se "acao" (em português), nunca "action" em inglês.
+- O campo "pericia" em "dificuldades" precisa ser sempre uma PERÍCIA da lista
+  oficial do referencia-swade.md — NUNCA um dos 5 Atributos (Agilidade,
+  Astúcia, Espírito, Força, Vigor). Se a ação parece "de Espírito" (ex:
+  resistir emocionalmente, quebrar a defesa psicológica de alguém), a
+  perícia certa é Foco, Persuadir ou Intimidar, dependendo do contexto —
+  nunca escreva o nome do Atributo diretamente nesse campo.
 - "local_ref" deve ser um identificador ESTÁVEL e CURTO pro local físico (ex: "saloon",
   "delegacia", "igreja_abandonada") — nunca inclua variações de estado (como "(Destruído)")
   ou combine dois nomes de prédio no mesmo texto. Se a cena 4 acontece no mesmo prédio da
