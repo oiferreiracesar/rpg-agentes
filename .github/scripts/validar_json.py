@@ -34,6 +34,8 @@ RACAS_OFICIAIS = {
     "Rakashano", "Sáurio", "Androide",
 }
 
+UNIVERSOS_COM_ATAQUE_ELEMENTAL = {"pokemon", "digimon"}
+
 
 class Validador:
     def __init__(self):
@@ -151,7 +153,7 @@ def validar_roteirista(v, data, nome_arquivo):
                 v.aviso(f"{nome_arquivo}: identidade oculta de '{npc_id}' referencia cena {ap.get('cena')} que não existe")
 
 
-def validar_npcs(v, data, nome_arquivo):
+def validar_npcs(v, data, nome_arquivo, universo=None):
     if data is None:
         return
 
@@ -201,7 +203,11 @@ def validar_npcs(v, data, nome_arquivo):
                     f"{origem}: arma '{arma.get('nome')}' parece ser à distância mas o dano "
                     f"usa 'Força+dX' ({dano}) — armas à distância devem ter dado fixo"
                 )
-            elif not eh_a_distancia and dano and "+" not in dano and "força" not in dano.lower():
+            # Nesses universos, ataques "corpo a corpo no nome" costumam ser
+            # elementais/energéticos por natureza (garra elétrica, rajada de
+            # vento) — a heurística de "nome parece corpo a corpo" gera
+            # falso positivo demais aqui, então pulamos esse aviso específico.
+            elif not eh_a_distancia and dano and "+" not in dano and "força" not in dano.lower() and universo not in UNIVERSOS_COM_ATAQUE_ELEMENTAL:
                 v.aviso(
                     f"{origem}: arma '{arma.get('nome')}' parece corpo a corpo mas o dano "
                     f"('{dano}') não segue o padrão Força+dX — confira manualmente"
@@ -317,7 +323,7 @@ def main():
     if roteirista is not None:
         validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
     if npcs is not None:
-        validar_npcs(v, npcs, caminho("03-npcs.json"))
+        validar_npcs(v, npcs, caminho("03-npcs.json"), universo)
         validar_racas_pokemon(v, npcs, caminho("03-npcs.json"), universo)
     if roteirista is not None and npcs is not None:
         validar_npcs_presentes_existem(v, roteirista, npcs, caminho("01-roteirista.json"), caminho("03-npcs.json"))
