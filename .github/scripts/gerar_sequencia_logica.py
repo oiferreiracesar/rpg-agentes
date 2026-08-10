@@ -112,12 +112,14 @@ def main():
     for i, d in enumerate(dinamicas):
         dados = d.get("dados", {})
         elementos = dados.get("elementos", [])
-        ordem_correta = dados.get("ordem_correta", [])
+        # "ordem_correta" é o nome oficial, mas a IA já usou "sequencia_correta"
+        # na prática — aceita os dois.
+        ordem_correta = dados.get("ordem_correta") or dados.get("sequencia_correta") or []
         pista = dados.get("pista_in_fiction", "")
         titulo = d.get("titulo", "Sequência Lógica")
 
         if not elementos or not ordem_correta:
-            print(f"AVISO: '{titulo}' sem 'elementos' ou 'ordem_correta', pulando.", file=sys.stderr)
+            print(f"AVISO: '{titulo}' sem 'elementos' ou 'ordem_correta'/'sequencia_correta', pulando.", file=sys.stderr)
             continue
 
         ok, motivo = verificar(elementos, ordem_correta)
