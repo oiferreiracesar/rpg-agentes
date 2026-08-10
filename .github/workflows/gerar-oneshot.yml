@@ -218,6 +218,9 @@ jobs:
             Leia output/01-roteirista.json e output/02-direcao-arte.json como entrada.
             Gere o JSON pedido e salve em output/10-puzzles.json.
 
+      - name: Instala dependências Python dos scripts
+        run: pip install reportlab
+
       - name: 4f. Montar e verificar puzzles físicos (algoritmo, sem IA)
         run: |
           python3 .github/scripts/gerar_caca_palavras.py
