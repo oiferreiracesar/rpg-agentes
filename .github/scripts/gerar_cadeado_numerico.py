@@ -6,6 +6,16 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 
+def buscar_campo(dados, contem, tipo=str):
+    for chave, valor in dados.items():
+        if not isinstance(valor, tipo):
+            continue
+        chave_norm = normalize(chave).lower().replace("_", "")
+        if any(normalize(c).lower().replace("_", "") in chave_norm for c in contem):
+            return valor
+    return None
+
+
 def normalize(text):
     repl = str.maketrans("ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ", "AAAAAEEEEIIIIOOOOOUUUUC")
     return text.upper().translate(repl)
@@ -150,8 +160,17 @@ def main():
         # livre com um código final. Gera mesmo assim, mas SEM verificação
         # matemática, avisando isso claramente no PDF e no log — mais útil
         # que descartar o puzzle inteiro. ---
-        enigma_texto = dados.get("enigma_matematico") or dados.get("conta_passo_a_passo")
-        codigo_fallback = str(dados.get("codigo_resposta") or dados.get("codigo_final") or "")
+        enigma_texto = (
+            dados.get("enigma_matematico")
+            or dados.get("conta_passo_a_passo")
+            or buscar_campo(dados, contem=["pergunta", "enigma", "pista", "charada", "conta"])
+        )
+        codigo_fallback = str(
+            dados.get("codigo_resposta")
+            or dados.get("codigo_final")
+            or buscar_campo(dados, contem=["resposta", "codigo", "resultado"], tipo=(int, float, str))
+            or ""
+        )
 
         if not enigma_texto or not codigo_fallback:
             print(f"AVISO: '{titulo}' sem dados suficientes (nem formato estruturado, nem enigma+código), pulando.", file=sys.stderr)
