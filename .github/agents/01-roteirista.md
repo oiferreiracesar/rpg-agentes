@@ -76,6 +76,14 @@ Regras importantes:
   - Se "mystery_dungeon": não existe treinador nesse modo. Coloque em
     "npcs_presentes" o ID do PRÓPRIO Pokémon normalmente, exatamente como
     faria em qualquer outro universo — sem essa distinção especial.
+- Se uma cena envolve múltiplos NPCs do mesmo "grupo" (ex: uma emboscada
+  selvagem, uma matilha, um bando), NUNCA invente um ID coletivo genérico
+  (como "bando_selvagem") em "npcs_presentes" — isso quebra a referência,
+  já que o agente de NPCs sempre expande em fichas individuais, nunca cria
+  uma ficha coletiva com esse nome. Em vez disso, liste o ID de cada membro
+  individualmente (ex: ["chefe_rota_8", "pidgeotto_selvagem",
+  "ekans_selvagem"]), ou, em universo "pokemon" modo "treinador", liste só
+  o ID do treinador responsável por aquele grupo de Pokémon.
 - Em universo "digimon" (ver output/00-universo.txt), coloque em
   "npcs_presentes" apenas o ID do TAMER (nunca do parceiro Digimon dele
   individualmente) — a expansão de um Tamer em parceiro Digimon é
