@@ -88,6 +88,13 @@ Regras importantes:
   "npcs_presentes" apenas o ID do TAMER (nunca do parceiro Digimon dele
   individualmente) — a expansão de um Tamer em parceiro Digimon é
   responsabilidade do agente de NPCs, não sua.
+- Se um Digimon aparece numa cena SEM pertencer a nenhum Tamer NPC da
+  história (ex: um Digimon selvagem que se torna companheiro do próprio
+  grupo de jogadores — a premissa clássica da franquia), liste o ID do
+  PRÓPRIO Digimon diretamente em "npcs_presentes", exatamente como faria em
+  qualquer outro universo. NUNCA invente um ID de Tamer fictício só pra
+  seguir o padrão de expansão — esse padrão só vale quando existe mesmo um
+  Tamer NPC específico sendo referenciado.
 - Em modo campanha, o twist desta sessão (obrigatório ter ao menos 1, "ninguém
   se vê como vilão") deve estar CONECTADO ao "vilao_da_campanha.verdade_por_tras"
   de 00-campanha.json — não é uma revelação de moral cinzenta solta, é uma
