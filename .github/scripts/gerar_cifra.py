@@ -66,6 +66,64 @@ def verificar(mensagem_original, chave):
     return decodificada == mensagem_original, codificada
 
 
+ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def cesar_codificar(texto, deslocamento):
+    out = []
+    for ch in texto:
+        if ch in ALFABETO:
+            idx = (ALFABETO.index(ch) + deslocamento) % 26
+            out.append(ALFABETO[idx])
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def cesar_decodificar(texto, deslocamento):
+    return cesar_codificar(texto, -deslocamento)
+
+
+def make_pdf_cesar(path, titulo, mensagem_codificada, deslocamento, resposta, with_answers):
+    c = canvas.Canvas(path, pagesize=letter)
+    width, height = letter
+
+    c.setFont("Helvetica-Bold", 20)
+    c.drawCentredString(width / 2, height - 60, titulo)
+    c.setFont("Helvetica-Oblique", 11)
+    subtitle = "Gabarito do Mestre" if with_answers else "Decifre a mensagem (Cifra de César)"
+    c.drawCentredString(width / 2, height - 80, subtitle)
+
+    c.setFont("Helvetica-Bold", 11)
+    y = height - 120
+    if with_answers:
+        c.drawString(60, y, f"Deslocamento usado: {deslocamento} posições")
+    else:
+        c.drawString(60, y, "Cada letra foi deslocada um número fixo de posições no alfabeto.")
+    y -= 30
+
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(60, y, "Mensagem codificada:")
+    y -= 25
+    c.setFont("Courier-Bold", 13)
+    largura_linha = 40
+    partes = [mensagem_codificada[i:i+largura_linha] for i in range(0, len(mensagem_codificada), largura_linha)]
+    for parte in partes:
+        c.drawString(60, y, parte)
+        y -= 20
+
+    if with_answers:
+        y -= 20
+        c.setFont("Helvetica-Bold", 11)
+        c.drawString(60, y, "Resposta decodificada:")
+        c.setFont("Helvetica", 12)
+        y -= 20
+        c.drawString(60, y, resposta)
+
+    c.showPage()
+    c.save()
+
+
 def make_pdf(path, titulo, chave, mensagem_codificada, resposta, with_answers):
     c = canvas.Canvas(path, pagesize=letter)
     width, height = letter
@@ -141,29 +199,74 @@ def main():
 
     for d in dinamicas:
         dados = d.get("dados", {})
-        chave = dados.get("chave", {})
-        resposta = dados.get("resposta", "")
         titulo = d.get("titulo", "Cifra")
 
-        if not chave or not resposta:
-            print(f"AVISO: '{titulo}' sem 'chave' ou 'resposta', pulando.", file=sys.stderr)
+        chave = dados.get("chave", {})
+        resposta = dados.get("resposta", "")
+
+        if chave and resposta:
+            # --- Modo substituição por símbolo (formato original) ---
+            resposta_norm = normalize(resposta)
+            chave_norm = {normalize(k): v for k, v in chave.items()}
+            chave_norm = sanitizar_chave(chave_norm)
+
+            ok, codificada = verificar(resposta_norm, chave_norm)
+            if not ok:
+                print(f"ERRO: '{titulo}' — a chave fornecida não decodifica de volta pra resposta original. Pulando.", file=sys.stderr)
+                continue
+
+            slug = slugify(titulo)
+            p1 = os.path.join(pasta_puzzles, f"{slug}_JOGADORES.pdf")
+            p2 = os.path.join(pasta_puzzles, f"{slug}_GABARITO.pdf")
+            make_pdf(p1, titulo, chave_norm, codificada, resposta_norm, with_answers=False)
+            make_pdf(p2, titulo, chave_norm, codificada, resposta_norm, with_answers=True)
+            print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (verificado: decodifica corretamente)")
             continue
 
-        resposta_norm = normalize(resposta)
-        chave_norm = {normalize(k): v for k, v in chave.items()}
-        chave_norm = sanitizar_chave(chave_norm)
+        # --- Modo Cifra de César (deslocamento numérico) ---
+        # A IA às vezes prefere esse formato clássico em vez da substituição
+        # por símbolo — aceita os dois, verificando cada um do jeito certo.
+        msg_original = dados.get("mensagem_original")
+        msg_cifrada = dados.get("mensagem_criptografada") or dados.get("mensagem_codificada")
+        deslocamento = dados.get("deslocamento")
 
-        ok, codificada = verificar(resposta_norm, chave_norm)
-        if not ok:
-            print(f"ERRO: '{titulo}' — a chave fornecida não decodifica de volta pra resposta original. Pulando.", file=sys.stderr)
+        if msg_original and deslocamento is not None:
+            msg_original_norm = normalize(msg_original)
+            try:
+                deslocamento = int(deslocamento)
+            except (TypeError, ValueError):
+                print(f"ERRO: '{titulo}' — 'deslocamento' não é um número válido. Pulando.", file=sys.stderr)
+                continue
+
+            codificada_calculada = cesar_codificar(msg_original_norm, deslocamento)
+
+            if msg_cifrada:
+                msg_cifrada_norm = normalize(msg_cifrada)
+                if codificada_calculada != msg_cifrada_norm:
+                    print(
+                        f"AVISO: '{titulo}' — a mensagem cifrada declarada não bate com o "
+                        f"resultado real de deslocar {deslocamento} posições (recalculando do "
+                        f"zero pra garantir consistência).",
+                        file=sys.stderr,
+                    )
+                # De qualquer forma, usamos a versão que CALCULAMOS (nunca a
+                # da IA), pra garantir que decodificar sempre bate certinho.
+
+            # Verificação real: decodifica de volta e confirma que é igual
+            decodificada = cesar_decodificar(codificada_calculada, deslocamento)
+            if decodificada != msg_original_norm:
+                print(f"ERRO: '{titulo}' — falha ao verificar a Cifra de César. Pulando.", file=sys.stderr)
+                continue
+
+            slug = slugify(titulo)
+            p1 = os.path.join(pasta_puzzles, f"{slug}_JOGADORES.pdf")
+            p2 = os.path.join(pasta_puzzles, f"{slug}_GABARITO.pdf")
+            make_pdf_cesar(p1, titulo, codificada_calculada, deslocamento, msg_original_norm, with_answers=False)
+            make_pdf_cesar(p2, titulo, codificada_calculada, deslocamento, msg_original_norm, with_answers=True)
+            print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (verificado: Cifra de César com deslocamento {deslocamento})")
             continue
 
-        slug = slugify(titulo)
-        p1 = os.path.join(pasta_puzzles, f"{slug}_JOGADORES.pdf")
-        p2 = os.path.join(pasta_puzzles, f"{slug}_GABARITO.pdf")
-        make_pdf(p1, titulo, chave_norm, codificada, resposta_norm, with_answers=False)
-        make_pdf(p2, titulo, chave_norm, codificada, resposta_norm, with_answers=True)
-        print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (verificado: decodifica corretamente)")
+        print(f"AVISO: '{titulo}' não reconheço nem formato de substituição (chave+resposta) nem Cifra de César (mensagem_original+deslocamento), pulando.", file=sys.stderr)
 
 
 if __name__ == "__main__":
