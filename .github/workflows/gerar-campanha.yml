@@ -724,6 +724,58 @@ jobs:
       - name: Gerar índice da campanha
         run: python3 .github/scripts/gerar_indice_campanha.py
 
+      - name: Configura acesso ao Notion via MCP
+        run: |
+          mkdir -p ~/.gemini
+          cat > ~/.gemini/settings.json << 'EOF'
+          {
+            "mcpServers": {
+              "notion": {
+                "command": "npx",
+                "args": ["-y", "@notionhq/notion-mcp-server"],
+                "env": { "NOTION_TOKEN": "${{ secrets.NOTION_TOKEN }}" }
+              }
+            }
+          }
+          EOF
+
+      - name: Publicar página-mãe da campanha no Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
+        run: |
+          python3 .github/scripts/publicar_notion.py \
+            --pasta output \
+            --markdown 00-indice-campanha.md \
+            --titulo "$(python3 -c "import json; print(json.load(open('output/00-campanha.json'))['campanha']['titulo'])")" \
+            --salvar-page-id-em output/00-notion-page-id.txt
+
+      - name: '[S1] Publicar sessão no Notion (subpágina da campanha)'
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          python3 .github/scripts/publicar_notion.py \
+            --pasta output/sessao_1 \
+            --parent-id "$(cat output/00-notion-page-id.txt)"
+
+      - name: '[S2] Publicar sessão no Notion (subpágina da campanha)'
+        if: steps.check_s2.outputs.rodar == 'true'
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          python3 .github/scripts/publicar_notion.py \
+            --pasta output/sessao_2 \
+            --parent-id "$(cat output/00-notion-page-id.txt)"
+
+      - name: '[S3] Publicar sessão no Notion (subpágina da campanha)'
+        if: steps.check_s3.outputs.rodar == 'true'
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          python3 .github/scripts/publicar_notion.py \
+            --pasta output/sessao_3 \
+            --parent-id "$(cat output/00-notion-page-id.txt)"
+
       - name: Disponibiliza tudo pra download
         if: always()
         uses: actions/upload-artifact@v4
