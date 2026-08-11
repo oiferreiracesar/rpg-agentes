@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -227,8 +228,28 @@ def main():
         # A IA às vezes prefere esse formato clássico em vez da substituição
         # por símbolo — aceita os dois, verificando cada um do jeito certo.
         msg_original = dados.get("mensagem_original")
-        msg_cifrada = dados.get("mensagem_criptografada") or dados.get("mensagem_codificada")
+        msg_cifrada = (
+            dados.get("mensagem_criptografada")
+            or dados.get("mensagem_codificada")
+            or dados.get("mensagem_cifrada")
+        )
         deslocamento = dados.get("deslocamento")
+
+        if deslocamento is None:
+            # Às vezes o deslocamento vem embutido dentro de uma frase (ex:
+            # "cifra_tipo": "Cesar (Deslocamento de 3 posições)") em vez de
+            # um campo numérico limpo — procura um número em qualquer campo
+            # de texto que mencione "deslocamento" ou "posições".
+            for chave, valor in dados.items():
+                if not isinstance(valor, str):
+                    continue
+                chave_norm = normalize(chave).lower()
+                valor_norm = normalize(valor).lower()
+                if "deslocamento" in chave_norm or "cesar" in valor_norm or "deslocamento" in valor_norm:
+                    m = re.search(r"\d+", valor)
+                    if m:
+                        deslocamento = int(m.group())
+                        break
 
         if msg_original and deslocamento is not None:
             msg_original_norm = normalize(msg_original)
