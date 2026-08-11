@@ -22,10 +22,19 @@ def main():
 
     corrigidos_resistencia = 0
     corrigidos_aparar = 0
+    corrigidos_dano = 0
 
     for npc in data.get("npcs", []):
         if not npc.get("combatente"):
             continue
+
+        # "dado" x "dano" são parecidos, e a IA já confundiu os dois —
+        # normaliza antes de qualquer outra coisa, senão o dano fica vazio
+        # mesmo com o valor certo presente, só no campo errado.
+        arma = npc.get("arma")
+        if isinstance(arma, dict) and not arma.get("dano") and arma.get("dado"):
+            arma["dano"] = arma.pop("dado")
+            corrigidos_dano += 1
 
         vigor = npc.get("atributos", {}).get("vigor")
         base = TABELA_RESISTENCIA.get(vigor)
@@ -60,6 +69,7 @@ def main():
 
     print(f"[{args.pasta}] Resistência recalculada em {corrigidos_resistencia} NPC(s) combatente(s).")
     print(f"[{args.pasta}] Aparar calculado em {corrigidos_aparar} NPC(s) combatente(s).")
+    print(f"[{args.pasta}] Campo 'dano' da arma corrigido (de 'dado') em {corrigidos_dano} NPC(s) combatente(s).")
 
 
 if __name__ == "__main__":
