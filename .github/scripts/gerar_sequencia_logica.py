@@ -39,6 +39,18 @@ def limpar_numeracao(item):
     return re.sub(r"^\s*\d+[\.\):\-]?\s*", "", texto).strip()
 
 
+def resolver_por_palavra_chave(rotulo, elementos):
+    """Quando 'ordem_correta' vem como rótulo curto (ex: 'abismo') em vez do
+    texto completo do elemento (ex: 'Toque na Runas do Abismo'), procura
+    qual elemento CONTÉM esse rótulo como palavra, e devolve o texto
+    completo dele — assim a carta impressa sempre mostra o texto real."""
+    rotulo_norm = normalize(str(rotulo)).lower()
+    for elem in elementos:
+        if rotulo_norm in normalize(elem).lower():
+            return elem
+    return None
+
+
 def normalize(text):
     repl = str.maketrans("ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ", "AAAAAEEEEIIIIOOOOOUUUUC")
     return text.upper().translate(repl)
@@ -166,7 +178,7 @@ def main():
         ordem_brutos = (
             dados.get("ordem_correta")
             or dados.get("sequencia_correta")
-            or buscar_campo_lista(dados, contem=["ordem", "sequencia"])
+            or buscar_campo_lista(dados, contem=["ordem", "sequencia", "resposta"])
             or []
         )
         pista = dados.get("pista_in_fiction", "") or buscar_campo_texto_simples(dados, ["pista", "dica"])
@@ -195,7 +207,21 @@ def main():
                     print(f"ERRO: '{titulo}' — 'ordem_correta' tem índices que não batem com a quantidade de elementos. Pulando.", file=sys.stderr)
                     continue
         else:
-            ordem_correta = [limpar_numeracao(x) for x in ordem_brutos]
+            ordem_limpa = [limpar_numeracao(x) for x in ordem_brutos]
+            # Se os itens não batem com o texto exato dos elementos (ex: a
+            # IA mandou rótulo curto "abismo" em vez do texto completo),
+            # tenta resolver por palavra-chave antes de desistir.
+            if not set(ordem_limpa).issubset(set(elementos)):
+                resolvidos = []
+                for item in ordem_limpa:
+                    if item in elementos:
+                        resolvidos.append(item)
+                    else:
+                        achado = resolver_por_palavra_chave(item, elementos)
+                        resolvidos.append(achado if achado else item)
+                ordem_correta = resolvidos
+            else:
+                ordem_correta = ordem_limpa
 
         ok, motivo = verificar(elementos, ordem_correta)
         if not ok:
