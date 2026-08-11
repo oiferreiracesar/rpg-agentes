@@ -45,20 +45,23 @@ def normalize(text):
 
 
 def verificar(elementos, ordem_correta):
-    """Confirma que 'ordem_correta' é de fato uma reordenação válida de
-    'elementos' — mesmos itens, mesma quantidade, sem inventar nem sumir com
-    nenhum. Evita o caso de a IA escrever a ordem certa com erro de digitação
-    que não bate mais com a lista real de elementos."""
-    if len(elementos) != len(ordem_correta):
-        return False, "quantidade de itens diferente entre 'elementos' e 'ordem_correta'"
-    if sorted(elementos) != sorted(ordem_correta):
-        return False, "os itens de 'ordem_correta' não são exatamente os mesmos de 'elementos' (conferir digitação)"
+    """Confirma que 'ordem_correta' é uma sub-sequência válida de
+    'elementos' — todo item da ordem certa precisa existir em elementos,
+    sem duplicar. 'elementos' pode ter itens A MAIS (cartas-isca que não
+    fazem parte da sequência certa — deixa o puzzle mais difícil de
+    propósito) — só não pode faltar nenhum item que a ordem_correta pede."""
+    if len(set(ordem_correta)) != len(ordem_correta):
+        return False, "'ordem_correta' tem itens duplicados — cada posição precisa ser única"
     if len(set(elementos)) != len(elementos):
         return False, "'elementos' tem itens duplicados — cada carta precisa ser única pra não haver ambiguidade"
+    faltando = set(ordem_correta) - set(elementos)
+    if faltando:
+        return False, f"'ordem_correta' cita item(ns) que não estão em 'elementos': {', '.join(faltando)}"
     return True, ""
 
 
-def make_pdf_cartas(path, titulo, elementos, embaralhados, pista, ordem_correta, with_answers):
+def make_pdf_cartas(path, titulo, elementos, embaralhados, pista, ordem_correta, with_answers, iscas=None):
+    iscas = iscas or []
     c = canvas.Canvas(path, pagesize=letter)
     width, height = letter
 
@@ -71,7 +74,15 @@ def make_pdf_cartas(path, titulo, elementos, embaralhados, pista, ordem_correta,
     if pista and not with_answers:
         y_pista = height - 105
         c.drawCentredString(width / 2, y_pista, f"Pista: {pista}")
+    if iscas and not with_answers:
+        c.setFont("Helvetica-Oblique", 9)
+        c.drawCentredString(width / 2, height - 120, f"Atenção: {len(iscas)} carta(s) aqui não pertencem à sequência certa.")
+    if iscas and with_answers:
+        c.setFont("Helvetica-Oblique", 9)
+        c.drawCentredString(width / 2, height - 105, f"Cartas-isca (não entram na sequência): {', '.join(iscas)}")
 
+    # Gabarito mostra só a ordem correta (sem as iscas, pra ficar claro pro
+    # mestre); jogadores veem todas as cartas juntas, embaralhadas.
     lista = ordem_correta if with_answers else embaralhados
 
     card_w, card_h = 160, 90
@@ -85,6 +96,7 @@ def make_pdf_cartas(path, titulo, elementos, embaralhados, pista, ordem_correta,
         x = start_x + col * (card_w + 20)
         y = start_y - row * (card_h + 20)
 
+        eh_isca = item in iscas
         c.rect(x, y - card_h, card_w, card_h, stroke=1, fill=0)
         c.setFont("Helvetica-Bold", 11)
         palavras = item.split()
@@ -109,6 +121,9 @@ def make_pdf_cartas(path, titulo, elementos, embaralhados, pista, ordem_correta,
         if with_answers:
             c.setFont("Helvetica", 8)
             c.drawString(x + 4, y - 12, f"{i + 1}º")
+        # NUNCA marca "(isca)" na versão do jogador — isso entregaria a
+        # resposta de graça. O aviso de quantas iscas existem já foi dado
+        # no topo da página, sem dizer QUAIS são.
 
     c.showPage()
     c.save()
@@ -145,7 +160,7 @@ def main():
         dados = d.get("dados", {})
         elementos_brutos = (
             dados.get("elementos")
-            or buscar_campo_lista(dados, contem=["elementos", "passos", "etapas", "itens", "cartas"])
+            or buscar_campo_lista(dados, contem=["elementos", "passos", "etapas", "itens", "cartas", "opcoes", "disponivel"])
             or []
         )
         ordem_brutos = (
@@ -190,16 +205,20 @@ def main():
         rnd = random.Random(i + 7)
         embaralhados = elementos[:]
         tentativas = 0
-        while embaralhados == ordem_correta and tentativas < 20:
+        while embaralhados[:len(ordem_correta)] == ordem_correta and tentativas < 20:
             rnd.shuffle(embaralhados)
             tentativas += 1
+
+        iscas = [e for e in elementos if e not in ordem_correta]
+        if iscas:
+            print(f"[{p}] Nota: '{titulo}' tem {len(iscas)} carta(s)-isca que não entram na sequência certa: {', '.join(iscas)}")
 
         slug = slugify(titulo)
         p1 = os.path.join(pasta_puzzles, f"{slug}_JOGADORES.pdf")
         p2 = os.path.join(pasta_puzzles, f"{slug}_GABARITO.pdf")
-        make_pdf_cartas(p1, titulo, elementos, embaralhados, pista, ordem_correta, with_answers=False)
-        make_pdf_cartas(p2, titulo, elementos, embaralhados, pista, ordem_correta, with_answers=True)
-        print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (verificado: {len(elementos)} itens batem entre elementos e ordem correta)")
+        make_pdf_cartas(p1, titulo, elementos, embaralhados, pista, ordem_correta, with_answers=False, iscas=iscas)
+        make_pdf_cartas(p2, titulo, elementos, embaralhados, pista, ordem_correta, with_answers=True, iscas=iscas)
+        print(f"[{p}] OK: '{titulo}' -> {p1} e {p2} (verificado: {len(ordem_correta)} itens da sequência certa, {len(iscas)} isca(s))")
 
 
 if __name__ == "__main__":
