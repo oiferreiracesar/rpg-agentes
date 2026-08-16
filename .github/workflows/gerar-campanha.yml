@@ -184,6 +184,12 @@ jobs:
       - name: '[S1] 3b. Corrigir Resistência'
         run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_1
 
+      - name: '[S1] 3c. Corrigir Raça de Pokémon'
+        run: python3 .github/scripts/corrigir_raca_pokemon.py --pasta output/sessao_1
+
+      - name: '[S1] 3d. Recalcular Resistência (raça pode ter mudado o modificador)'
+        run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_1
+
       - name: '[S1] 4. Cartógrafo'
         uses: google-github-actions/run-gemini-cli@v0
         env:
@@ -379,6 +385,14 @@ jobs:
             Gere o JSON pedido e salve em output/sessao_2/03-npcs.json.
 
       - name: '[S2] 3b. Corrigir Resistência'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_2
+
+      - name: '[S2] 3c. Corrigir Raça de Pokémon'
+        if: steps.check_s2.outputs.rodar == 'true'
+        run: python3 .github/scripts/corrigir_raca_pokemon.py --pasta output/sessao_2
+
+      - name: '[S2] 3d. Recalcular Resistência (raça pode ter mudado o modificador)'
         if: steps.check_s2.outputs.rodar == 'true'
         run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_2
 
@@ -590,6 +604,14 @@ jobs:
         if: steps.check_s3.outputs.rodar == 'true'
         run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_3
 
+      - name: '[S3] 3c. Corrigir Raça de Pokémon'
+        if: steps.check_s3.outputs.rodar == 'true'
+        run: python3 .github/scripts/corrigir_raca_pokemon.py --pasta output/sessao_3
+
+      - name: '[S3] 3d. Recalcular Resistência (raça pode ter mudado o modificador)'
+        if: steps.check_s3.outputs.rodar == 'true'
+        run: python3 .github/scripts/corrigir_resistencia.py --pasta output/sessao_3
+
       - name: '[S3] 4. Cartógrafo'
         if: steps.check_s3.outputs.rodar == 'true'
         uses: google-github-actions/run-gemini-cli@v0
@@ -776,10 +798,17 @@ jobs:
             --pasta output/sessao_3 \
             --parent-id "$(cat output/00-notion-page-id.txt)"
 
+      - name: Determina nome do artefato a partir do título da campanha
+        id: nome_artefato
+        if: always()
+        run: |
+          NOME=$(python3 .github/scripts/gerar_nome_artefato.py --arquivo 00-campanha.json --campo campanha.titulo --fallback campanha-gerada)
+          echo "nome=$NOME" >> $GITHUB_OUTPUT
+
       - name: Disponibiliza tudo pra download
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: campanha-gerada
+          name: ${{ steps.nome_artefato.outputs.nome }}
           path: output/
           retention-days: 30
