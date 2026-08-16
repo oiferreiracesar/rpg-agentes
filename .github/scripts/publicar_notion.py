@@ -20,7 +20,7 @@ def extract_page_id(raw):
     )
     if not match:
         print(
-            f"ERRO: não foi possível extrair um ID válido de NOTION_PARENT_PAGE_ID: {raw}",
+            f"ERRO: não foi possível extrair um ID válido: {raw}",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -215,28 +215,34 @@ def markdown_to_blocks(md_text):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs/markdown (padrão: output)")
+    parser.add_argument("--markdown", default="07-compilado.md", help="Nome do arquivo markdown a publicar (padrão: 07-compilado.md)")
+    parser.add_argument("--titulo", default=None, help="Título da página no Notion (padrão: lê de 01-roteirista.json, se existir)")
+    parser.add_argument("--parent-id", default=None, help="ID (ou URL) da página-mãe no Notion (padrão: variável de ambiente NOTION_PARENT_PAGE_ID)")
+    parser.add_argument("--salvar-page-id-em", default=None, help="Caminho de arquivo onde salvar o ID da página criada (útil pra usar como --parent-id de uma publicação seguinte, ex: subpáginas de sessão dentro da página da campanha)")
     args = parser.parse_args()
 
     token = os.environ.get("NOTION_TOKEN")
-    parent_id_raw = os.environ.get("NOTION_PARENT_PAGE_ID")
+    parent_id_raw = args.parent_id or os.environ.get("NOTION_PARENT_PAGE_ID")
     if not token or not parent_id_raw:
-        print("ERRO: NOTION_TOKEN e/ou NOTION_PARENT_PAGE_ID não definidos.", file=sys.stderr)
+        print("ERRO: NOTION_TOKEN e/ou um parent id (--parent-id ou NOTION_PARENT_PAGE_ID) não definidos.", file=sys.stderr)
         sys.exit(1)
     parent_id = extract_page_id(parent_id_raw)
 
-    md_path = os.path.join(args.pasta, "07-compilado.md")
+    md_path = os.path.join(args.pasta, args.markdown)
     if not os.path.exists(md_path):
         print(f"ERRO: {md_path} não encontrado.", file=sys.stderr)
         sys.exit(1)
     with open(md_path, encoding="utf-8") as f:
         md_content = f.read()
 
-    roteirista_path = os.path.join(args.pasta, "01-roteirista.json")
-    titulo = "Oneshot Gerada"
-    if os.path.exists(roteirista_path):
-        with open(roteirista_path, encoding="utf-8") as f:
-            roteirista = json.load(f)
-        titulo = roteirista.get("metadados", {}).get("titulo", titulo)
+    titulo = args.titulo
+    if titulo is None:
+        titulo = "Oneshot Gerada"
+        roteirista_path = os.path.join(args.pasta, "01-roteirista.json")
+        if os.path.exists(roteirista_path):
+            with open(roteirista_path, encoding="utf-8") as f:
+                roteirista = json.load(f)
+            titulo = roteirista.get("metadados", {}).get("titulo", titulo)
 
     blocks = markdown_to_blocks(md_content)
     if not blocks:
@@ -267,6 +273,11 @@ def main():
         time.sleep(0.4)
 
     print("Publicação no Notion concluída.")
+
+    if args.salvar_page_id_em:
+        with open(args.salvar_page_id_em, "w", encoding="utf-8") as f:
+            f.write(page_id)
+        print(f"ID da página salvo em {args.salvar_page_id_em}: {page_id}")
 
 
 if __name__ == "__main__":
