@@ -95,6 +95,34 @@ Regras importantes:
   qualquer outro universo. NUNCA invente um ID de Tamer fictício só pra
   seguir o padrão de expansão — esse padrão só vale quando existe mesmo um
   Tamer NPC específico sendo referenciado.
+- Se existir um arquivo output/00-universo.txt com o valor "lanoire", leia
+  também .github/agents/referencia-lanoire.md antes de gerar qualquer coisa.
+  Pelo menos UMA cena da aventura (recomendado: a cena de clímax) precisa
+  ter um campo "interrogatorio" nela, com esta estrutura exata:
+
+  "interrogatorio": {
+    "npc_id": "id do NPC sendo interrogado, já presente em npcs_presentes desta cena",
+    "perguntas": [
+      {
+        "topico": "do que se trata a pergunta",
+        "resposta_npc": "o que o NPC diz quando perguntado",
+        "e_mentira": true ou false,
+        "documento_id_que_contradiz": "um ID novo que você inventa aqui (ex: 'recibo_hotel'), SÓ se e_mentira=true — omita completamente se e_mentira=false",
+        "consequencia_verdade": "o que acontece se o jogador aceitar sem questionar",
+        "consequencia_pressionar": "o que acontece se o jogador pressionar sem ter prova",
+        "consequencia_mentira_certa": "o que acontece se o jogador citar a evidência certa",
+        "consequencia_mentira_errada": "o que acontece se o jogador citar a evidência errada, ou chamar de mentira algo que era verdade"
+      }
+    ]
+  }
+
+  Gere 3 a 5 perguntas por interrogatório, com pelo menos 1 sendo mentira
+  (e_mentira=true). Todo "documento_id_que_contradiz" que você inventar
+  aqui PRECISA corresponder a um documento que apareça numa cena de número
+  MENOR que a cena deste interrogatório (a prova precisa já ter sido
+  encontrada antes — nunca depois, seria impossível o jogador ter usado
+  ela). Anote esse ID claramente na sua saída, já que o agente de
+  Documentos vai precisar gerar exatamente esse documento depois.
 - Em modo campanha, o twist desta sessão (obrigatório ter ao menos 1, "ninguém
   se vê como vilão") deve estar CONECTADO ao "vilao_da_campanha.verdade_por_tras"
   de 00-campanha.json — não é uma revelação de moral cinzenta solta, é uma
