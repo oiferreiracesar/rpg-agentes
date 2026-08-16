@@ -23,10 +23,27 @@ def main():
     corrigidos_resistencia = 0
     corrigidos_aparar = 0
     corrigidos_dano = 0
+    corrigidos_atributo = 0
 
     for npc in data.get("npcs", []):
         if not npc.get("combatente"):
             continue
+
+        # Se algum dos 5 atributos ficou faltando (a IA esqueceu de gerar),
+        # preenche com d6 (o "meio-termo" razoável) em vez de travar o
+        # pipeline inteiro — mas avisa bem alto, porque um NPC importante
+        # (chefe de cena, vilão nomeado) merece ficha revisada à mão depois.
+        atributos = npc.setdefault("atributos", {})
+        for attr in ("agilidade", "astucia", "espirito", "forca", "vigor"):
+            if attr not in atributos or not atributos[attr]:
+                atributos[attr] = "d6"
+                corrigidos_atributo += 1
+                print(
+                    f"AVISO: NPC '{npc.get('nome_exibicao')}' estava sem o atributo "
+                    f"'{attr}' — preenchido com d6 (padrão). Confira manualmente se "
+                    f"esse NPC é importante pra narrativa.",
+                    file=sys.stderr,
+                )
 
         # "dado" x "dano" são parecidos, e a IA já confundiu os dois —
         # normaliza antes de qualquer outra coisa, senão o dano fica vazio
@@ -70,6 +87,7 @@ def main():
     print(f"[{args.pasta}] Resistência recalculada em {corrigidos_resistencia} NPC(s) combatente(s).")
     print(f"[{args.pasta}] Aparar calculado em {corrigidos_aparar} NPC(s) combatente(s).")
     print(f"[{args.pasta}] Campo 'dano' da arma corrigido (de 'dado') em {corrigidos_dano} NPC(s) combatente(s).")
+    print(f"[{args.pasta}] Atributo(s) faltando preenchido(s) com d6 em {corrigidos_atributo} caso(s).")
 
 
 if __name__ == "__main__":
