@@ -742,7 +742,7 @@ jobs:
       - name: Publicar página-mãe da campanha no Notion
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_CAMPAIGN_PARENT_PAGE_ID }}
         run: |
           python3 .github/scripts/publicar_notion.py \
             --pasta output \
