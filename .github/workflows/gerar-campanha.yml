@@ -27,6 +27,7 @@ on:
           - silent_hill
           - resident_evil
           - slasher
+          - lanoire
           - generico
       jogo_referencia:
         description: 'Jogo/região/tipo específico (deixe "sem_preferencia" se não quiser travar em um)'
@@ -99,6 +100,7 @@ jobs:
             silent_hill) echo "referencia-silenthill.md" > output/00-arquivo-referencia.txt ;;
             resident_evil) echo "referencia-residentevil.md" > output/00-arquivo-referencia.txt ;;
             slasher) echo "referencia-slasher.md" > output/00-arquivo-referencia.txt ;;
+            lanoire) echo "referencia-lanoire.md" > output/00-arquivo-referencia.txt ;;
             *) echo "" > output/00-arquivo-referencia.txt ;;
           esac
 
