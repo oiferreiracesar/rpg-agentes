@@ -261,6 +261,66 @@ def validar_documentos_referenciados(v, roteirista, docs, nome_arquivo_docs):
             )
 
 
+def validar_interrogatorios(v, roteirista, docs, nome_arquivo_roteirista, nome_arquivo_docs):
+    """Universo L.A. Noire: toda pergunta marcada 'e_mentira': true precisa
+    ter um 'documento_id_que_contradiz' válido, apontando pra um documento
+    que existe de verdade em 06-documentos.json — senão o jogador nunca
+    consegue usar essa prova, e a mecânica de Mentira fica impossível de
+    jogar naquele ponto."""
+    if roteirista is None:
+        return
+    ids_documentos = {d["id"] for d in (docs or {}).get("documentos", []) if "id" in d}
+    cenas_por_numero = {c["numero"]: c for c in roteirista.get("cenas", []) if "numero" in c}
+
+    for c in roteirista.get("cenas", []):
+        interrogatorio = c.get("interrogatorio")
+        if not interrogatorio:
+            continue
+        num_cena = c.get("numero")
+        origem_base = f"{nome_arquivo_roteirista}, Cena {num_cena}, interrogatório"
+
+        npc_id = interrogatorio.get("npc_id")
+        if npc_id and npc_id not in c.get("npcs_presentes", []):
+            v.aviso(
+                f"{origem_base}: 'npc_id' ('{npc_id}') não está em 'npcs_presentes' "
+                f"desta cena — confira se é o NPC certo"
+            )
+
+        for i, pergunta in enumerate(interrogatorio.get("perguntas", []), start=1):
+            origem = f"{origem_base}, pergunta {i} ('{pergunta.get('topico','?')}')"
+            if not pergunta.get("e_mentira"):
+                continue
+
+            doc_id = pergunta.get("documento_id_que_contradiz")
+            if not doc_id:
+                v.erro(
+                    f"{origem}: marcada 'e_mentira': true mas sem "
+                    f"'documento_id_que_contradiz' — a mentira não tem prova pra sustentar ela"
+                )
+                continue
+
+            if docs is None:
+                v.aviso(f"{origem}: cita documento '{doc_id}', mas {nome_arquivo_docs} ainda não foi gerado — confira depois")
+                continue
+
+            if doc_id not in ids_documentos:
+                v.erro(
+                    f"{origem}: referencia documento '{doc_id}', que não existe em "
+                    f"{nome_arquivo_docs} — o jogador nunca vai conseguir usar essa prova"
+                )
+                continue
+
+            doc = next((d for d in docs.get("documentos", []) if d.get("id") == doc_id), None)
+            if doc:
+                cena_doc = doc.get("cena_onde_aparece")
+                if isinstance(cena_doc, int) and isinstance(num_cena, int) and cena_doc >= num_cena:
+                    v.erro(
+                        f"{origem}: a prova '{doc_id}' aparece na cena {cena_doc}, mas o "
+                        f"interrogatório é na cena {num_cena} — a prova precisa ter sido "
+                        f"encontrada ANTES, nunca na mesma cena ou depois"
+                    )
+
+
 def validar_sonoplastia(v, data, roteirista, nome_arquivo):
     if data is None or roteirista is None:
         return
@@ -331,6 +391,8 @@ def main():
         validar_mapas_referenciados(v, roteirista, cartografo, caminho("01-roteirista.json"), caminho("04-cartografo.json"))
     if roteirista is not None and documentos is not None:
         validar_documentos_referenciados(v, roteirista, documentos, caminho("06-documentos.json"))
+    if roteirista is not None:
+        validar_interrogatorios(v, roteirista, documentos, caminho("01-roteirista.json"), caminho("06-documentos.json"))
     if sonoplastia is not None:
         validar_sonoplastia(v, sonoplastia, roteirista, caminho("05-sonoplastia.json"))
     if animador is not None:
