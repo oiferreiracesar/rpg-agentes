@@ -84,24 +84,37 @@ def validar_npcs_presentes_existem(v, roteirista, npcs_data, nome_roteirista, no
                 )
 
 
-def validar_racas_pokemon(v, npcs_data, nome_arquivo, universo=None):
-    """Todo Pokémon precisa usar uma das 7 raças que o referencia-pokemon.md
-    mapeia — nunca 'Humano', que é reservado pro treinador/Tamer em si.
-    Verifica dois casos: (1) qualquer NPC com 'treinador_id' (claramente um
-    Pokémon de alguém), e (2) em universo "pokemon", QUALQUER NPC combatente
-    com raça Humano — mesmo sem treinador_id, já que Pokémon selvagens sem
-    dono também não deveriam ser 'Humano' (esse caso passava batido antes)."""
+def validar_racas_companheiro(v, npcs_data, nome_arquivo, universo=None):
+    """Todo Pokémon ou Digimon precisa usar uma das 7 raças que as
+    referências mapeiam — nunca 'Humano', que é reservado pro
+    treinador/Tamer em si. Verifica três casos: (1) qualquer NPC com
+    'treinador_id' (Pokémon de alguém), (2) qualquer NPC com 'tamer_id'
+    (Digimon de alguém), e (3) em universo "pokemon" ou "digimon", QUALQUER
+    NPC combatente com raça Humano — mesmo sem dono, já que um Pokémon/
+    Digimon selvagem/companheiro sem treinador também não deveria ser
+    'Humano' (esse caso passava batido antes)."""
     if npcs_data is None:
         return
+    universos_com_companheiro = {"pokemon", "digimon"}
     for npc in npcs_data.get("npcs", []):
         eh_pokemon_com_dono = bool(npc.get("treinador_id"))
-        eh_combatente_suspeito = universo == "pokemon" and npc.get("combatente") and npc.get("raca") == "Humano"
+        eh_digimon_com_tamer = bool(npc.get("tamer_id"))
+        eh_combatente_suspeito = (
+            universo in universos_com_companheiro
+            and npc.get("combatente")
+            and npc.get("raca") == "Humano"
+        )
 
-        if npc.get("raca") == "Humano" and (eh_pokemon_com_dono or eh_combatente_suspeito):
-            motivo = "tem 'treinador_id'" if eh_pokemon_com_dono else "é combatente num universo Pokémon (raro um humano lutar diretamente)"
+        if npc.get("raca") == "Humano" and (eh_pokemon_com_dono or eh_digimon_com_tamer or eh_combatente_suspeito):
+            if eh_pokemon_com_dono:
+                motivo = "tem 'treinador_id'"
+            elif eh_digimon_com_tamer:
+                motivo = "tem 'tamer_id'"
+            else:
+                motivo = f"é combatente num universo {universo} (raro um humano lutar diretamente)"
             v.aviso(
                 f"{nome_arquivo}, NPC '{npc.get('nome_exibicao')}': {motivo} mas a "
-                f"raça está como 'Humano' — confira se não deveria ser um Pokémon "
+                f"raça está como 'Humano' — confira se não deveria ser um Pokémon/Digimon "
                 f"com outra raça (Aviano/Aquariano/Pequenino/Sáurio/Elfo/Androide/Rakashano)"
             )
 
@@ -384,7 +397,7 @@ def main():
         validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
     if npcs is not None:
         validar_npcs(v, npcs, caminho("03-npcs.json"), universo)
-        validar_racas_pokemon(v, npcs, caminho("03-npcs.json"), universo)
+        validar_racas_companheiro(v, npcs, caminho("03-npcs.json"), universo)
     if roteirista is not None and npcs is not None:
         validar_npcs_presentes_existem(v, roteirista, npcs, caminho("01-roteirista.json"), caminho("03-npcs.json"))
     if roteirista is not None and cartografo is not None:
