@@ -368,6 +368,141 @@ def validar_improviso(v, data, npcs_data, nome_arquivo):
             v.aviso(f"{nome_arquivo}: banco de falas referencia npc_id '{npc_id}' que não existe em 03-npcs.json")
 
 
+def validar_puzzles(v, data, nome_arquivo):
+    """Confere se cada dinâmica de 10-puzzles.json segue o schema exato que
+    os scripts gerar_*.py (e o Tabuleiro Virtual) esperam pro tipo dela —
+    ver Passo 4 de 10-puzzles.md. Tudo aqui é aviso, nunca erro: um puzzle
+    com schema errado não quebra o resto do pipeline, só nasce sem
+    verificação matemática ou sem PDF (os scripts individuais já lidam bem
+    com isso sozinhos) — mas é bem melhor pegar isso aqui, num relatório só,
+    do que só descobrir no log escondido de um script específico."""
+    if data is None:
+        return
+
+    def campo_ausente(dinamica_nome, tipo, campo):
+        v.aviso(
+            f"{nome_arquivo}, '{dinamica_nome}' (tipo {tipo}): falta o campo "
+            f"'{campo}' — confira o schema exato no Passo 4 de 10-puzzles.md"
+        )
+
+    for d in data.get("dinamicas", []):
+        tipo = d.get("tipo", "")
+        titulo = d.get("titulo", "?")
+        dados = d.get("dados", {})
+        origem = f"{nome_arquivo}, '{titulo}'"
+
+        if tipo == "cadeado_numerico":
+            pistas = dados.get("pistas")
+            operacao = dados.get("operacao")
+            codigo_final = dados.get("codigo_final")
+            if not pistas or not operacao or not codigo_final:
+                campos_faltando = [
+                    c for c, v_ in (("pistas", pistas), ("operacao", operacao), ("codigo_final", codigo_final)) if not v_
+                ]
+                v.aviso(
+                    f"{origem} (cadeado_numerico): faltam {campos_faltando} — vai gerar "
+                    f"SEM verificação matemática (modo de segurança do script)"
+                )
+            else:
+                try:
+                    valores = [int(pista["valor"]) for pista in pistas]
+                    if operacao == "concatenacao":
+                        calculado = "".join(str(x) for x in valores)
+                    elif operacao == "soma":
+                        calculado = str(sum(valores))
+                    elif operacao == "produto":
+                        r = 1
+                        for x in valores:
+                            r *= x
+                        calculado = str(r)
+                    else:
+                        v.aviso(f"{origem} (cadeado_numerico): 'operacao' ('{operacao}') não é concatenacao/soma/produto")
+                        calculado = None
+                    if calculado is not None and calculado != str(codigo_final):
+                        v.aviso(
+                            f"{origem} (cadeado_numerico): 'codigo_final' declarado "
+                            f"('{codigo_final}') não bate com o resultado real de aplicar "
+                            f"'{operacao}' às pistas (deu '{calculado}') — o script vai "
+                            f"pular este puzzle"
+                        )
+                except (KeyError, ValueError, TypeError):
+                    v.aviso(f"{origem} (cadeado_numerico): alguma pista não tem 'valor' numérico válido")
+
+        elif tipo == "anagrama":
+            if not dados.get("resposta_correta"):
+                campo_ausente(titulo, tipo, "resposta_correta")
+
+        elif tipo == "sequencia_logica":
+            elementos = dados.get("elementos")
+            ordem_correta = dados.get("ordem_correta")
+            if not ordem_correta:
+                campo_ausente(titulo, tipo, "ordem_correta")
+            elif len(set(ordem_correta)) != len(ordem_correta):
+                v.aviso(f"{origem} (sequencia_logica): 'ordem_correta' tem item(ns) duplicado(s)")
+            elif elementos:
+                if len(set(elementos)) != len(elementos):
+                    v.aviso(f"{origem} (sequencia_logica): 'elementos' tem item(ns) duplicado(s)")
+                faltando = set(ordem_correta) - set(elementos)
+                if faltando:
+                    v.aviso(
+                        f"{origem} (sequencia_logica): 'ordem_correta' cita item(ns) que não "
+                        f"estão em 'elementos': {', '.join(faltando)}"
+                    )
+
+        elif tipo == "cifra":
+            if not dados.get("mensagem_original"):
+                campo_ausente(titulo, tipo, "mensagem_original")
+            if dados.get("deslocamento") is None:
+                campo_ausente(titulo, tipo, "deslocamento")
+
+        elif tipo == "sudoku_tematico":
+            simbolos = dados.get("simbolos", [])
+            if len(simbolos) != 4:
+                v.aviso(
+                    f"{origem} (sudoku_tematico): precisa de exatamente 4 símbolos "
+                    f"(veio {len(simbolos)}) — o script vai pular este puzzle"
+                )
+
+        elif tipo == "caca_palavras":
+            palavras = dados.get("palavras")
+            if not palavras:
+                if dados.get("palavras_alvo"):
+                    v.aviso(
+                        f"{origem} (caca_palavras): usa 'palavras_alvo' em vez de 'palavras' "
+                        f"— o script real procura 'palavras' e não vai encontrar nada"
+                    )
+                else:
+                    campo_ausente(titulo, tipo, "palavras")
+            elif len(palavras) < 3:
+                v.aviso(f"{origem} (caca_palavras): menos de 3 palavras — o script vai pular este puzzle")
+
+        elif tipo == "palavras_cruzadas":
+            palavras = dados.get("palavras")
+            if not palavras or len(palavras) < 2:
+                v.aviso(f"{origem} (palavras_cruzadas): precisa de ao menos 2 palavras em 'palavras'")
+
+        elif tipo == "roleta_decisao":
+            opcoes = dados.get("opcoes")
+            pesos = dados.get("pesos")
+            if not opcoes or len(opcoes) < 2:
+                v.aviso(f"{origem} (roleta_decisao): precisa de ao menos 2 opções em 'opcoes'")
+            else:
+                tem_peso_embutido = any(isinstance(o, dict) and "peso" in o for o in opcoes)
+                if tem_peso_embutido and not pesos:
+                    v.aviso(
+                        f"{origem} (roleta_decisao): 'peso' está dentro de cada item de "
+                        f"'opcoes', mas o script real lê pesos de um array SEPARADO "
+                        f"'pesos' (paralelo a 'opcoes') — do jeito que está, todo peso "
+                        f"vai ser ignorado e a roleta sai com opções iguais"
+                    )
+                elif pesos and len(pesos) != len(opcoes):
+                    v.aviso(
+                        f"{origem} (roleta_decisao): 'pesos' tem {len(pesos)} item(ns) mas "
+                        f"'opcoes' tem {len(opcoes)} — precisam ter o mesmo tamanho, ou omita "
+                        f"'pesos' inteiro pra pesos iguais"
+                    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pasta", default="output", help="Pasta onde estão os JSONs (padrão: output)")
@@ -392,6 +527,7 @@ def main():
     documentos = carregar_json(v, caminho("06-documentos.json"))
     animador = carregar_json(v, caminho("08-animador.json"))
     improviso = carregar_json(v, caminho("09-improviso.json"))
+    puzzles = carregar_json(v, caminho("10-puzzles.json"))
 
     if roteirista is not None:
         validar_roteirista(v, roteirista, caminho("01-roteirista.json"))
@@ -412,6 +548,8 @@ def main():
         validar_animador(v, animador, roteirista, caminho("08-animador.json"))
     if improviso is not None:
         validar_improviso(v, improviso, npcs, caminho("09-improviso.json"))
+    if puzzles is not None:
+        validar_puzzles(v, puzzles, caminho("10-puzzles.json"))
 
     print("=" * 60)
     print(f"RELATÓRIO DE VALIDAÇÃO — {p}")
