@@ -88,25 +88,40 @@ geração de imagem.
 
 Passo 4 — CAMPO "dados": SIGA O SCHEMA EXATO ABAIXO PRO TIPO ESCOLHIDO.
 
-Isso existe porque o Tabuleiro Virtual (rpg_swade_v2.html) lê esse JSON
-automaticamente e importa cada dinâmica pro jogo de tela correspondente. Se
-o nome do campo não bater exatamente com o schema, a importação falha
-silenciosamente e o mestre precisa preencher tudo na mão. Use SEMPRE os
-nomes de campo exatos abaixo — não invente sinônimo, não troque a ordem, não
-adicione acento onde não tem.
+Isso existe porque os scripts em `.github/scripts/gerar_*.py` leem esse JSON
+automaticamente pra montar e VERIFICAR MATEMATICAMENTE cada puzzle antes de
+virar PDF — e o Tabuleiro Virtual (rpg_swade_v2.html) lê o mesmo JSON pra
+importar cada dinâmica como jogo de tela. Os dois consumidores exigem os
+MESMOS nomes de campo abaixo. Se o nome não bater exatamente, o script
+Python pula o puzzle inteiro (avisando no log, nunca falha silenciosamente,
+mas também nunca gera o PDF) e a importação no tabuleiro cai num modo de
+preenchimento manual. Use SEMPRE os nomes de campo exatos abaixo — não
+invente sinônimo, não troque a ordem, não adicione acento onde não tem.
 
-Os 13 tipos abaixo têm jogo correspondente no Tabuleiro Virtual e PRECISAM
-seguir o schema exato:
+Os 7 tipos abaixo têm SCRIPT PRÓPRIO que verifica matematicamente e gera PDF
+(`.github/scripts/gerar_<tipo>.py`) — schema exato, sem exceção:
 
 - **cadeado_numerico**
   ```
   "dados": {
-    "codigo_correto": "0984",
-    "pergunta": "texto da pergunta/conta que leva ao código (opcional, só contexto)",
-    "dicas": ["dica 1", "dica 2"]
+    "pistas": [
+      {"texto": "Andar onde mora o guardião do templo", "valor": 7},
+      {"texto": "Número de portas da capela principal", "valor": 3}
+    ],
+    "operacao": "concatenacao",
+    "codigo_final": "73"
   }
   ```
-  `codigo_correto` é uma STRING de dígitos (não número), tamanho livre.
+  `operacao` é uma destas três strings: `"concatenacao"`, `"soma"` ou
+  `"produto"`. O script RECALCULA `codigo_final` a partir dos `valor` de
+  cada pista aplicando essa operação, e só gera o puzzle se o resultado
+  bater exatamente com o `codigo_final` que você escreveu — ele mesmo é a
+  verificação, não escreva um código que "pareça certo", calcule de
+  verdade antes de escrever. Evite zero à esquerda em `codigo_final` se
+  usar `"soma"` ou `"produto"` (ex: nunca "0984") — essas duas operações
+  nunca preservam zero à esquerda, então um código assim NUNCA vai bater
+  na verificação; use `"concatenacao"` se precisar preservar dígitos
+  exatos incluindo zeros à esquerda.
 
 - **anagrama**
   ```
@@ -115,17 +130,23 @@ seguir o schema exato:
     "dica": "uma frase de contexto (opcional)"
   }
   ```
-  Não precisa gerar `palavra_embaralhada` — o script embaralha sozinho toda vez
-  que o mestre clicar em "Embaralhar", então é inútil pré-computar isso.
+  Não precisa gerar `palavra_embaralhada` — o script embaralha sozinho toda
+  vez que o mestre gerar o puzzle, então é inútil pré-computar isso.
 
 - **sequencia_logica**
   ```
   "dados": {
-    "itens_em_ordem": ["Item 1", "Item 2", "Item 3"],
-    "pistas": ["pista 1", "pista 2"]
+    "elementos": ["Símbolo do Fogo", "Símbolo da Água", "Símbolo da Folha", "Símbolo da Sombra"],
+    "ordem_correta": ["Símbolo do Fogo", "Símbolo da Água", "Símbolo da Folha"],
+    "pista_in_fiction": "pista narrativa opcional"
   }
   ```
-  A lista já vem NA ORDEM CORRETA (o script embaralha pra exibir).
+  `elementos` é o conjunto COMPLETO mostrado ao grupo — pode ter itens A
+  MAIS que não fazem parte da sequência certa (cartas-isca, deixam o
+  puzzle mais difícil de propósito, como no exemplo acima com "Símbolo da
+  Sombra" sobrando). `ordem_correta` é só o subconjunto certo, já na ordem
+  certa. Se não quiser isca nenhuma, `elementos` e `ordem_correta` podem
+  ter exatamente os mesmos itens.
 
 - **cifra**
   ```
@@ -135,25 +156,29 @@ seguir o schema exato:
   }
   ```
   `deslocamento` é um número inteiro (cifra de César). Não cifre a mensagem
-  você mesmo — o script faz isso.
+  você mesmo — o script faz isso e verifica que decodifica de volta certo.
 
 - **sudoku_tematico**
   ```
   "dados": {
-    "simbolos": ["Din","Nayru","Farore","Poder","Sabedoria","Coragem"]
+    "simbolos": ["Din", "Nayru", "Farore", "Coragem"]
   }
   ```
-  Precisa ter EXATAMENTE 6 símbolos (grade é sempre 6×6). Se vier com
-  quantidade diferente de 6, o script ignora e usa números 1-6 no lugar.
+  Precisa ter EXATAMENTE 4 símbolos (a grade do script é sempre 4×4, caixas
+  2×2) — nunca 6 ou qualquer outra quantidade. Se vier com quantidade
+  diferente de 4, o script pula o puzzle inteiro.
 
 - **caca_palavras**
   ```
   "dados": {
-    "palavras_alvo": ["HYRULE","ZELDA","GORON"]
+    "palavras": ["HYRULE", "ZELDA", "GORON"],
+    "tamanho_grade_sugerido": 14
   }
   ```
-  Não gere a grade nem posições — o script posiciona sozinho. Evite palavras
-  com menos de 3 letras.
+  O campo chama-se `palavras`, não `palavras_alvo`. `tamanho_grade_sugerido`
+  é opcional (padrão 14 se omitido) — aumente se tiver muitas palavras
+  longas, pra garantir que todas caibam. Não gere a grade nem posições — o
+  script posiciona sozinho e verifica célula a célula depois.
 
 - **palavras_cruzadas**
   ```
@@ -164,9 +189,14 @@ seguir o schema exato:
     ]
   }
   ```
-  Pelo menos 2 palavras. Prefira palavras que compartilhem alguma letra entre
-  si — o script tenta cruzar automaticamente, mas só consegue se houver letra
-  em comum.
+  Pelo menos 2 palavras. Prefira palavras que compartilhem alguma letra
+  entre si — o script tenta cruzar automaticamente, mas só consegue se
+  houver letra em comum; palavras que não cruzarem com nenhuma outra são
+  descartadas (o script avisa quais, mas segue com as que couberam).
+
+Os 6 tipos abaixo NÃO têm script de verificação/PDF dedicado — o
+Tabuleiro Virtual ainda os importa como jogo de tela, então mantenha os
+nomes de campo abaixo mesmo sem verificação matemática por trás:
 
 - **trivia_em_cadeia**
   ```
@@ -185,19 +215,25 @@ seguir o schema exato:
     "mensagem": "texto que vai aparecer invertido na tela"
   }
   ```
-  Escreva a mensagem NORMAL (legível) — o script inverte visualmente sozinho.
+  Escreva a mensagem NORMAL (legível) — o tabuleiro inverte visualmente
+  sozinho.
 
 - **roleta_decisao**
   ```
   "dados": {
-    "opcoes": [
-      {"nome": "Final Bom", "peso": 3},
-      {"nome": "Final Ruim", "peso": 1}
-    ]
+    "opcoes": ["Final Bom", "Final Ruim"],
+    "pesos": [3, 1]
   }
   ```
-  `peso` é opcional por opção (padrão 1 se omitido) — pesos maiores = mais
-  provável. Pelo menos 2 opções.
+  `opcoes` e `pesos` são DOIS ARRAYS PARALELOS (mesma posição = mesma
+  opção) — nunca embuta o peso dentro de cada opção. `pesos` é opcional
+  por completo (omita o campo inteiro pra pesos iguais) — mas se
+  incluir, precisa ter exatamente a mesma quantidade de itens que
+  `opcoes`, na mesma ordem. Pesos maiores = mais provável. Pelo menos 2
+  opções. O script gera o PDF da roleta, mas hoje ele não aparece linkado
+  automaticamente no documento compilado — avise o mestre que o arquivo
+  fica em `output/puzzles/`, procure manualmente lá se quiser a versão
+  impressa.
 
 - **jigsaw**
   ```
@@ -206,7 +242,8 @@ seguir o schema exato:
   }
   ```
   Continua precisando de geração de imagem externa e upload manual pelo
-  mestre — o script só usa esse campo pra mostrar o prompt como lembrete.
+  mestre — isso vale tanto pra versão impressa quanto pra versão de tela
+  do Tabuleiro Virtual.
 
 - **labirinto**
   ```
@@ -214,8 +251,9 @@ seguir o schema exato:
     "descricao_narrativa": "1-2 frases de como o labirinto aparece na cena (opcional)"
   }
   ```
-  Este tipo NÃO precisa de geração externa — o script gera o labirinto
-  sozinho, sempre com caminho garantido. `descricao_narrativa` é só sabor.
+  No Tabuleiro Virtual este tipo NÃO precisa de geração externa — o jogo
+  gera o labirinto sozinho, sempre com caminho garantido.
+  `descricao_narrativa` é só sabor.
 
 - **sequencia_sonora**
   ```
@@ -224,14 +262,15 @@ seguir o schema exato:
     "descricao": "contexto de como esse som se manifesta na cena (opcional)"
   }
   ```
-  O script gera tons reais (Web Audio) — `padrao` só define quantas rodadas
-  o jogo de memória sonora deve ter (o comprimento da lista), os nomes dos
-  sons são só pra contexto narrativo.
+  No Tabuleiro Virtual o jogo gera tons reais (Web Audio) — `padrao` só
+  define quantas rodadas o jogo de memória sonora deve ter (o comprimento
+  da lista), os nomes dos sons são só pra contexto narrativo.
 
-Os 7 tipos abaixo NÃO têm jogo de tela — continuam com "estrutura livre" em
-"dados", já que são lidos ou conduzidos ao vivo pelo mestre, não processados
-por script: enigma, fragmentos_para_ordenar, sete_erros, silhueta,
-mimica_ou_desenho, caixa_misteriosa, desafio_fisico.
+Os 7 tipos abaixo NÃO têm jogo de tela nem script — continuam com
+"estrutura livre" em "dados", já que são lidos ou conduzidos ao vivo pelo
+mestre, sem nenhum processamento automático: enigma,
+fragmentos_para_ordenar, sete_erros, silhueta, mimica_ou_desenho,
+caixa_misteriosa, desafio_fisico.
 
 Gere SEMPRE um JSON neste formato exato:
 
@@ -243,7 +282,7 @@ Gere SEMPRE um JSON neste formato exato:
       "categoria": "script_verificavel | texto_pronto | precisa_geracao_externa | fisico_social | decisao_tensao",
       "cena_ref": numero da cena onde entra,
       "contexto_narrativo": "1-2 frases de como o mestre apresenta isso na cena",
-      "dados": "objeto seguindo o schema exato do Passo 4 se o tipo tiver jogo correspondente; estrutura livre (mas completa) se não tiver"
+      "dados": "objeto seguindo o schema exato do Passo 4 pro tipo escolhido"
     }
   ]
 }
