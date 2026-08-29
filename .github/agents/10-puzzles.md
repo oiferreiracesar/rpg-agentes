@@ -86,6 +86,153 @@ PDF, sem cadastro. Nunca invente URL — se não tiver certeza de um site
 real e atual pro tipo específico, não sugira nenhum, deixe só o prompt de
 geração de imagem.
 
+Passo 4 — CAMPO "dados": SIGA O SCHEMA EXATO ABAIXO PRO TIPO ESCOLHIDO.
+
+Isso existe porque o Tabuleiro Virtual (rpg_swade_v2.html) lê esse JSON
+automaticamente e importa cada dinâmica pro jogo de tela correspondente. Se
+o nome do campo não bater exatamente com o schema, a importação falha
+silenciosamente e o mestre precisa preencher tudo na mão. Use SEMPRE os
+nomes de campo exatos abaixo — não invente sinônimo, não troque a ordem, não
+adicione acento onde não tem.
+
+Os 13 tipos abaixo têm jogo correspondente no Tabuleiro Virtual e PRECISAM
+seguir o schema exato:
+
+- **cadeado_numerico**
+  ```
+  "dados": {
+    "codigo_correto": "0984",
+    "pergunta": "texto da pergunta/conta que leva ao código (opcional, só contexto)",
+    "dicas": ["dica 1", "dica 2"]
+  }
+  ```
+  `codigo_correto` é uma STRING de dígitos (não número), tamanho livre.
+
+- **anagrama**
+  ```
+  "dados": {
+    "resposta_correta": "PALAVRA OU FRASE",
+    "dica": "uma frase de contexto (opcional)"
+  }
+  ```
+  Não precisa gerar `palavra_embaralhada` — o script embaralha sozinho toda vez
+  que o mestre clicar em "Embaralhar", então é inútil pré-computar isso.
+
+- **sequencia_logica**
+  ```
+  "dados": {
+    "itens_em_ordem": ["Item 1", "Item 2", "Item 3"],
+    "pistas": ["pista 1", "pista 2"]
+  }
+  ```
+  A lista já vem NA ORDEM CORRETA (o script embaralha pra exibir).
+
+- **cifra**
+  ```
+  "dados": {
+    "mensagem_original": "texto em português normal, sem cifrar",
+    "deslocamento": 3
+  }
+  ```
+  `deslocamento` é um número inteiro (cifra de César). Não cifre a mensagem
+  você mesmo — o script faz isso.
+
+- **sudoku_tematico**
+  ```
+  "dados": {
+    "simbolos": ["Din","Nayru","Farore","Poder","Sabedoria","Coragem"]
+  }
+  ```
+  Precisa ter EXATAMENTE 6 símbolos (grade é sempre 6×6). Se vier com
+  quantidade diferente de 6, o script ignora e usa números 1-6 no lugar.
+
+- **caca_palavras**
+  ```
+  "dados": {
+    "palavras_alvo": ["HYRULE","ZELDA","GORON"]
+  }
+  ```
+  Não gere a grade nem posições — o script posiciona sozinho. Evite palavras
+  com menos de 3 letras.
+
+- **palavras_cruzadas**
+  ```
+  "dados": {
+    "palavras": [
+      {"palavra": "HYRULE", "dica": "O reino"},
+      {"palavra": "LINK", "dica": "O herói"}
+    ]
+  }
+  ```
+  Pelo menos 2 palavras. Prefira palavras que compartilhem alguma letra entre
+  si — o script tenta cruzar automaticamente, mas só consegue se houver letra
+  em comum.
+
+- **trivia_em_cadeia**
+  ```
+  "dados": {
+    "perguntas": [
+      {"pergunta": "texto da pergunta 1", "resposta": "resposta 1"},
+      {"pergunta": "texto da pergunta 2", "resposta": "resposta 2"}
+    ],
+    "codigo_final": "palavra ou código revelado ao fim (opcional)"
+  }
+  ```
+
+- **mensagem_espelhada**
+  ```
+  "dados": {
+    "mensagem": "texto que vai aparecer invertido na tela"
+  }
+  ```
+  Escreva a mensagem NORMAL (legível) — o script inverte visualmente sozinho.
+
+- **roleta_decisao**
+  ```
+  "dados": {
+    "opcoes": [
+      {"nome": "Final Bom", "peso": 3},
+      {"nome": "Final Ruim", "peso": 1}
+    ]
+  }
+  ```
+  `peso` é opcional por opção (padrão 1 se omitido) — pesos maiores = mais
+  provável. Pelo menos 2 opções.
+
+- **jigsaw**
+  ```
+  "dados": {
+    "prompt_imagem": "prompt em inglês pra gerar a imagem que vira o quebra-cabeça"
+  }
+  ```
+  Continua precisando de geração de imagem externa e upload manual pelo
+  mestre — o script só usa esse campo pra mostrar o prompt como lembrete.
+
+- **labirinto**
+  ```
+  "dados": {
+    "descricao_narrativa": "1-2 frases de como o labirinto aparece na cena (opcional)"
+  }
+  ```
+  Este tipo NÃO precisa de geração externa — o script gera o labirinto
+  sozinho, sempre com caminho garantido. `descricao_narrativa` é só sabor.
+
+- **sequencia_sonora**
+  ```
+  "dados": {
+    "padrao": ["som1", "som2", "som3"],
+    "descricao": "contexto de como esse som se manifesta na cena (opcional)"
+  }
+  ```
+  O script gera tons reais (Web Audio) — `padrao` só define quantas rodadas
+  o jogo de memória sonora deve ter (o comprimento da lista), os nomes dos
+  sons são só pra contexto narrativo.
+
+Os 7 tipos abaixo NÃO têm jogo de tela — continuam com "estrutura livre" em
+"dados", já que são lidos ou conduzidos ao vivo pelo mestre, não processados
+por script: enigma, fragmentos_para_ordenar, sete_erros, silhueta,
+mimica_ou_desenho, caixa_misteriosa, desafio_fisico.
+
 Gere SEMPRE um JSON neste formato exato:
 
 {
@@ -94,10 +241,9 @@ Gere SEMPRE um JSON neste formato exato:
       "titulo": "Nome temático da dinâmica",
       "tipo": "caca_palavras | palavras_cruzadas | anagrama | sequencia_logica | cifra | cadeado_numerico | sudoku_tematico | enigma | trivia_em_cadeia | fragmentos_para_ordenar | mensagem_espelhada | labirinto | sete_erros | jigsaw | silhueta | sequencia_sonora | mimica_ou_desenho | caixa_misteriosa | desafio_fisico | roleta_decisao",
       "categoria": "script_verificavel | texto_pronto | precisa_geracao_externa | fisico_social | decisao_tensao",
-      "categoria": "script_verificavel | texto_pronto | precisa_geracao_externa | fisico_social",
       "cena_ref": numero da cena onde entra,
       "contexto_narrativo": "1-2 frases de como o mestre apresenta isso na cena",
-      "dados": "objeto com os campos específicos do tipo escolhido — estrutura livre, mas sempre completa o suficiente pra montar a dinâmica sem inventar nada na hora"
+      "dados": "objeto seguindo o schema exato do Passo 4 se o tipo tiver jogo correspondente; estrutura livre (mas completa) se não tiver"
     }
   ]
 }
