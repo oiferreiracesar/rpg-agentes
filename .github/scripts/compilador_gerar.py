@@ -389,7 +389,27 @@ def main():
                 md.append(f"**Contexto:** {contexto}")
             md.append("")
 
-            if tipo in SCRIPT_VERIFICAVEL or categoria == "script_verificavel":
+            if tipo == "roleta_decisao":
+                # Diferente dos outros tipos verificados, a roleta gera um
+                # UNICO pdf (gerar_roleta.py salva como "{slug}_ROLETA.pdf",
+                # nao "_JOGADORES"/"_GABARITO") -- por isso precisa de um
+                # caso proprio aqui, em vez de cair no SCRIPT_VERIFICAVEL
+                # generico (que assumia sempre 2 arquivos e nunca linkava
+                # a roleta de verdade, mesmo o pdf dela sendo gerado normal).
+                slug = slugify_puzzle(titulo)
+                md.append(
+                    "📄 PDF verificado automaticamente — pronto pra imprimir:  \n"
+                    f"[Roleta pronta pra recortar](puzzles/{slug}_ROLETA.pdf)"
+                )
+                md.append("")
+                md.append(
+                    "> Se o link acima não abrir: ou o script ainda não rodou "
+                    "nessa pasta, ou ele detectou algo inconsistente nos dados "
+                    "gerados e pulou este puzzle de propósito (nunca falha "
+                    "silenciosamente) — confira o log do pipeline pra saber qual "
+                    "dos dois foi."
+                )
+            elif tipo in SCRIPT_VERIFICAVEL or categoria == "script_verificavel":
                 slug = slugify_puzzle(titulo)
                 md.append(
                     "📄 PDF verificado automaticamente — pronto pra imprimir:  \n"
