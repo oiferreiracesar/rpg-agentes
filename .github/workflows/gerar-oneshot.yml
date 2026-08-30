@@ -28,6 +28,7 @@ on:
           - resident_evil
           - slasher
           - lanoire
+          - dnd
           - generico
       jogo_referencia:
         description: 'Jogo/região/tipo específico do universo escolhido (veja a referência daquele universo pras opções — ex: "breath_of_the_wild", "final_fantasy_vii"). Deixe "sem_preferencia" se não quiser travar em um.'
@@ -90,6 +91,7 @@ jobs:
             resident_evil) echo "referencia-residentevil.md" > output/00-arquivo-referencia.txt ;;
             slasher) echo "referencia-slasher.md" > output/00-arquivo-referencia.txt ;;
             lanoire) echo "referencia-lanoire.md" > output/00-arquivo-referencia.txt ;;
+            dnd) echo "referencia-dnd.md" > output/00-arquivo-referencia.txt ;;
             *) echo "" > output/00-arquivo-referencia.txt ;;
           esac
           echo "Universo escolhido: ${{ inputs.universo }} -> arquivo: $(cat output/00-arquivo-referencia.txt)"
