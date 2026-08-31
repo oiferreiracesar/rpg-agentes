@@ -51,6 +51,12 @@ destes valores possíveis:
   referência em output/00-jogo-referencia.txt (nunca "jogo", este universo
   não tem mídia própria). Gênero com convenção própria de eliminação de
   NPCs-acompanhantes — ver seção "Estrutura de eliminação" do documento.
+- "dnd": leia .github/agents/referencia-dnd.md. Cenário de referência (ex:
+  Forgotten Realms, Eberron) em output/00-jogo-referencia.txt. Toda sessão
+  desta campanha precisa incluir combate real contra monstros ou raças
+  não-humanas, nunca só diálogo/investigação — ver "Instrução obrigatória"
+  do documento de referência. Use a tabela de criaturas→raça mecânica dele
+  pra qualquer NPC Recorrente que seja monstro, não só povo jogável.
 - "generico": nenhum universo de franquia — use só
   .github/agents/referencia-swade.md, sem nenhuma referência temática
   externa. Construa a cosmologia, os povos e os locais do zero, coerentes
@@ -103,7 +109,7 @@ Gere SEMPRE um JSON neste formato exato:
 {
   "campanha": {
     "titulo": "Nome da campanha",
-    "universo": "hyrule | final_fantasy | scifi_nintendo | pokemon | digimon | ordem_paranormal | star_wars | naruto | dc | marvel_hq | marvel_cinematico | silent_hill | resident_evil | slasher | generico",
+    "universo": "hyrule | final_fantasy | scifi_nintendo | pokemon | digimon | ordem_paranormal | star_wars | naruto | dc | marvel_hq | marvel_cinematico | silent_hill | resident_evil | slasher | dnd | generico",
     "numero_de_sessoes": numero,
     "vilao_da_campanha": {
       "nome": "string",
