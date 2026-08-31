@@ -51,6 +51,12 @@ destes valores possíveis:
   referência em output/00-jogo-referencia.txt (nunca "jogo", este universo
   não tem mídia própria). Gênero com convenção própria de eliminação de
   NPCs-acompanhantes — ver seção "Estrutura de eliminação" do documento.
+- "lanoire": leia .github/agents/referencia-lanoire.md. Era/tom de
+  referência em output/00-jogo-referencia.txt. Gênero noir investigativo —
+  o Vilão da Campanha funciona melhor como uma conspiração ou rede de
+  corrupção revelada aos poucos ao longo das sessões, não um antagonista
+  sobrenatural único. O campo "interrogatorio" de cena é responsabilidade
+  do Roteirista sessão por sessão, não sua.
 - "dnd": leia .github/agents/referencia-dnd.md. Cenário de referência (ex:
   Forgotten Realms, Eberron) em output/00-jogo-referencia.txt. Toda sessão
   desta campanha precisa incluir combate real contra monstros ou raças
@@ -109,7 +115,7 @@ Gere SEMPRE um JSON neste formato exato:
 {
   "campanha": {
     "titulo": "Nome da campanha",
-    "universo": "hyrule | final_fantasy | scifi_nintendo | pokemon | digimon | ordem_paranormal | star_wars | naruto | dc | marvel_hq | marvel_cinematico | silent_hill | resident_evil | slasher | dnd | generico",
+    "universo": "hyrule | final_fantasy | scifi_nintendo | pokemon | digimon | ordem_paranormal | star_wars | naruto | dc | marvel_hq | marvel_cinematico | silent_hill | resident_evil | slasher | lanoire | dnd | generico",
     "numero_de_sessoes": numero,
     "vilao_da_campanha": {
       "nome": "string",
