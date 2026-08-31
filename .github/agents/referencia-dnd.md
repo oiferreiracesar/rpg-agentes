@@ -104,6 +104,14 @@ existir. Toda aventura gerada neste universo PRECISA incluir:
 - Todo NPC combatente — incluindo capangas genéricos de monstro/raça — precisa
   de ficha própria, seguindo a regra já existente do referencia-swade.md
   (nunca referencie uma dificuldade de combate sem NPC correspondente).
+- **Grupos de inimigos idênticos** (2-3 goblins, um bando de orcs) são muito
+  mais comuns aqui do que em outros universos deste projeto — quando quiser
+  vários inimigos do mesmo tipo numa cena, liste o id UMA ÚNICA VEZ em
+  "npcs_presentes" (ex: só "batedor_goblin", nunca "batedor_goblin_1" +
+  "batedor_goblin_2" como entradas separadas) e deixe explícito no campo
+  "papel" da ficha que o mestre pode reaproveitá-la pra quantas cópias
+  quiser em combate. Uma ficha, várias cópias na mesa — nunca uma ficha por
+  cópia.
 - Isso não impede nuance moral (um antagonista não-humano pode ter motivo
   compreensível, ver "Arquétipos de antagonista" abaixo) — só impede que a
   aventura vire inteiramente social/investigativa sem nenhum confronto físico
