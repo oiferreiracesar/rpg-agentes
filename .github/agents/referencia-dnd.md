@@ -74,10 +74,18 @@ humanoide civilizada — mas o schema do referencia-swade.md exige uma das 9
 raças oficiais mesmo assim (nunca deixe em branco, nunca invente uma décima).
 Escolha pela SILHUETA e pelo TRAÇO MECÂNICO mais parecido, não pelo nome:
 
+> ⚠️ **"Humano" nunca é o padrão de segurança pra criatura não-humana.** Se o
+> `nome_exibicao`, a `descricao_curta` ou o `papel` de um NPC diz "orc",
+> "goblin", "morto-vivo" ou qualquer criatura da tabela abaixo, a `raca`
+> DEVE ser a mapeada — nunca "Humano". Um NPC chamado "Sentinela Orc" ou
+> "Chefe Grom, o orc" com `raca: "Humano"` é uma contradição direta entre
+> nome e ficha, e anula o propósito inteiro desta referência.
+
 | Tipo de criatura | Raça mecânica mais próxima | Por quê |
 |---|---|---|
 | Goblin, Kobold, criatura pequena e numerosa | Pequenino | Pequeno, ágil, aparece em grupo |
 | Orc raso, hobgoblin, bugbear (capanga genérico, não um chefe nomeado) | Rakashano | Força bruta, mordida/garra natural já embutida no traço |
+| **Orc, goblin ou hobgoblin CHEFE/NOMEADO (chefe de cena)** | **A mesma raça do capanga da mesma espécie** (ex: chefe orc também é Rakashano) | O chefe é mecanicamente mais forte (atributos maiores, Carta Selvagem), nunca de espécie/raça diferente dos próprios capangas que lidera |
 | Lobo, urso, criatura selvagem grande | Rakashano | Mesma lógica — ataque natural e agressividade |
 | Esqueleto, zumbi, morto-vivo em geral | Androide | Reaproveita o traço "Construto" (não respira, imune a veneno/doença, ignora 1 nível de Ferimento) — encaixe mecânico natural pra um corpo sem vida própria |
 | Aranha gigante, criatura com casca ou pele grossa | Sáurio | Armadura +2 natural e mordida já embutidas |
@@ -92,9 +100,17 @@ capacidade dela em combate, e documente a escolha na descrição do NPC.
 ## Instrução obrigatória: combate real contra monstros e outras raças
 Esta é a regra mais importante desta referência, porque é o motivo dela
 existir. Toda aventura gerada neste universo PRECISA incluir:
-- **Pelo menos 2 dificuldades de combate direto** (perícia Lutar ou Atirar)
-  contra criaturas não-humanas ao longo da aventura — nunca só diálogo,
-  investigação ou combate contra humanos comuns.
+- **Pelo menos 2 cenas com uma dificuldade EXPLICITAMENTE testada com a
+  perícia Lutar ou Atirar** (campo "pericia" da dificuldade tem que ser
+  literalmente "Lutar" ou "Atirar"), contra criaturas não-humanas. Não
+  basta a cena TER um NPC combatente presente — a dificuldade de combate
+  real precisa estar escrita no campo "dificuldades" daquela cena. Ter
+  Furtividade pra evitar a briga, ou Persuadir pra negociar em vez de
+  lutar, NÃO conta pra esse mínimo, mesmo que o mesmo NPC apareça na cena.
+  Nuance moral (ver "Arquétipos de antagonista" abaixo) muda o MOTIVO do
+  combate, nunca substitui ele — dê ao grupo a opção narrativa de negociar
+  SE quiser, mas a cena ainda precisa ter combate testável de verdade pra
+  quem preferir resolver assim.
 - **Pelo menos UM povo/raça não-humana como força antagonista organizada**
   (um bando de orcs, uma tribo de goblins, um culto de mortos-vivos) — não
   apenas um monstro solitário.
@@ -114,8 +130,8 @@ existir. Toda aventura gerada neste universo PRECISA incluir:
   cópia.
 - Isso não impede nuance moral (um antagonista não-humano pode ter motivo
   compreensível, ver "Arquétipos de antagonista" abaixo) — só impede que a
-  aventura vire inteiramente social/investigativa sem nenhum confronto físico
-  contra algo além de humanos.
+  aventura vire inteiramente social/investigativa/furtiva sem nenhum
+  confronto físico testável contra algo além de humanos.
 
 ## Locais recorrentes
 Uma masmorra ou ruína antiga (caverna, torre desmoronada, fortaleza tomada —
